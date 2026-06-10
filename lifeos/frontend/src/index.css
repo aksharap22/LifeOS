@@ -3,42 +3,15 @@
 @layer base {
   :root {
     --bg-deep: #050505;
-    --bg-onyx: #0a0a0a;
+    --bg-onyx: #121212;
     --neon-cyan: #00f2ff;
-    --neon-magenta: #ff00f7;
-    --plasma-purple: #7000ff;
-    --text-primary: #ffffff;
-    --text-dim: #a0a0a0;
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
   }
 
   body {
     background-color: var(--bg-deep);
     color: var(--text-primary);
     font-family: 'Inter', system-ui, sans-serif;
-    background-image: 
-      linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    min-height: 100vh;
-  }
-
-  *::-webkit-scrollbar {
-    width: 8px;
-  }
-  *::-webkit-scrollbar-track {
-    background: var(--bg-onyx);
-  }
-  *::-webkit-scrollbar-thumb {
-    background: var(--plasma-purple);
-    border-radius: 4px;
-  }
-}
-
-@layer utilities {
-  .text-glow-cyan {
-    text-shadow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan);
-  }
-  .border-glow-cyan {
-    box-shadow: 0 0 10px rgba(0, 242, 255, 0.3);
   }
 }
