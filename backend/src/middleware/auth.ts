@@ -14,14 +14,19 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
       token = req.headers.authorization.split(' ')[1];
       const decoded = jwt.verify(token!, process.env.JWT_SECRET || 'secret') as unknown as DecodedToken;
 
-      (req as any).user = await User.findById(decoded.id).select('-passwordHash');
-      next();
+      const user = await User.findById(decoded.id).select('-passwordHash');
+      if (!user) {
+        return res.status(401).json({ message: 'Not authorized, user not found' });
+      }
+
+      (req as any).user = user;
+      return next();
     } catch (error) {
-      res.status(401).json({ message: 'Not authorized, token failed' });
+      return res.status(401).json({ message: 'Not authorized, token failed' });
     }
   }
 
   if (!token) {
-    res.status(401).json({ message: 'Not authorized, no token' });
+    return res.status(401).json({ message: 'Not authorized, no token' });
   }
 };

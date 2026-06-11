@@ -1,0 +1,30 @@
+
+> backend@1.0.0 dev
+> tsx src/index.ts
+
+◇ injected env (4) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+Attempting to connect to MongoDB at: cluster0.iig2vry.mongodb.net/?appName=Cluster0
+MongoDB connection error detail: MongoServerError: bad auth : authentication failed
+    at Connection.sendCommand (/Users/perala/LifeOS/lifeos/backend/node_modules/mongodb/src/cmap/connection.ts:561:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Connection.command (/Users/perala/LifeOS/lifeos/backend/node_modules/mongodb/src/cmap/connection.ts:634:22)
+    at async continueScramConversation (/Users/perala/LifeOS/lifeos/backend/node_modules/mongodb/src/cmap/auth/scram.ts:186:13)
+    at async executeScram (/Users/perala/LifeOS/lifeos/backend/node_modules/mongodb/src/cmap/auth/scram.ts:113:3)
+    at async ScramSHA1.auth (/Users/perala/LifeOS/lifeos/backend/node_modules/mongodb/src/cmap/auth/scram.ts:59:12)
+    at async performInitialHandshake (/Users/perala/LifeOS/lifeos/backend/node_modules/mongodb/src/cmap/connect.ts:171:7)
+    at async connect (/Users/perala/LifeOS/lifeos/backend/node_modules/mongodb/src/cmap/connect.ts:48:5) {
+  errorLabelSet: Set(2) { 'HandshakeError', 'ResetPool' },
+  errorResponse: {
+    ok: 0,
+    errmsg: 'bad auth : authentication failed',
+    code: 8000,
+    codeName: 'AtlasError'
+  },
+  ok: 0,
+  code: 8000,
+  codeName: 'AtlasError',
+  connectionGeneration: 0
+}
+Proceeding without MongoDB connection. DB-dependent routes will fail.
+Server running on http://0.0.0.0:5001

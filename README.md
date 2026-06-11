@@ -62,6 +62,19 @@ Generate a customized profile containing:
 * Most productive work period
 * Recommended exercise timing
 
+## AI Configuration
+
+LifeOS supports both local and online AI models. By default, it uses **Ollama** for local inference to ensure privacy and zero costs.
+
+### Local AI (Ollama) - Recommended
+1. Install [Ollama](https://ollama.com/).
+2. Pull your preferred model (e.g., `ollama pull llama3`).
+3. Set `AI_PROVIDER=ollama` in your `.env`.
+
+### Online AI (BYOK) - Optional
+1. Set `AI_PROVIDER=openai` in your `.env`.
+2. Add your `OPENAI_API_KEY`.
+
 ## Technology Stack
 
 Frontend:
@@ -79,8 +92,9 @@ Database:
 * MongoDB
 
 AI:
+*   Local AI Inference (Ollama) - **Mandatory/Default**
+*   OpenAI API (Optional - Bring Your Own Token)
 
-* OpenAI API
 
 ## Target Users
 

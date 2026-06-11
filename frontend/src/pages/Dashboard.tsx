@@ -1,13 +1,24 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
 import { Link } from 'react-router-dom';
-import { Activity, Plus, BarChart3 } from 'lucide-react';
+import { Activity, Plus, BarChart3, Flame, Timer, TrendingUp } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
+import { useLanguage } from '../hooks/useLanguage';
+import { challengeTemplates } from '../data/challengeTemplates';
 
 const Dashboard = () => {
   const [experiments, setExperiments] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<'library' | 'experiments' | 'stats'>('library');
+  const { user } = useAuth();
+  const { t } = useLanguage();
 
   useEffect(() => {
     const fetchExperiments = async () => {
+      if (!user) {
+        setExperiments([]);
+        return;
+      }
+
       try {
         const { data } = await api.get('/experiments');
         setExperiments(data);
@@ -16,52 +27,148 @@ const Dashboard = () => {
       }
     };
     fetchExperiments();
-  }, []);
+  }, [user]);
+
+  const activeCount = experiments.filter((exp) => exp.status === 'Active').length;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      {/* Column 1: Experiments */}
-      <div className="lg:col-span-2 space-y-4">
-        <div className="flex justify-between items-center mb-2">
-          <h2 className="text-xl font-bold uppercase tracking-widest text-cyan-400">Active Experiments</h2>
-          <Link to="/create-experiment" className="flex items-center gap-2 bg-cyan-500/20 border border-cyan-500 text-cyan-300 px-3 py-1 text-sm rounded hover:bg-cyan-500/30 transition">
-            <Plus size={16} /> NEW
-          </Link>
+    <div className="space-y-12 pb-20">
+      {/* Hero Section */}
+      <section className="py-16 border-b border-white/5 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-fuchsia-600/10 blur-[120px] rounded-full -mr-48 -mt-24"></div>
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-cyan-600/10 blur-[100px] rounded-full -ml-32 -mb-16"></div>
+        
+        <div className="max-w-4xl relative z-10">
+          <div className="mb-8 inline-flex items-center gap-2 border border-fuchsia-500/30 bg-fuchsia-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-fuchsia-300">
+            <Flame size={14} />
+            LIFESTYLE LAB
+          </div>
+          <div className="space-y-4">
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-black leading-tight text-white tracking-tight uppercase">
+              {t('heroLine1')}
+            </h1>
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-black leading-tight text-white/90 tracking-tight uppercase">
+              {t('heroLine2')}
+            </h1>
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-black leading-tight text-cyan-400 tracking-tight uppercase">
+              {t('heroLine3')}
+            </h1>
+          </div>
+          <div className="mt-12 flex flex-wrap gap-5">
+            <Link 
+              to={user ? '/create-experiment' : '/register'} 
+              className="group relative inline-flex items-center gap-3 bg-white px-10 py-4 font-black text-black transition-all hover:bg-cyan-400 uppercase text-lg"
+            >
+              <Plus size={22} />
+              {user ? t('acceptChallenge') : t('startNow')}
+            </Link>
+          </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {experiments.map((exp) => (
-            <div key={exp._id} className="p-4 bg-[#0a0a0a] border border-white/5 rounded-lg hover:border-cyan-500/50 transition duration-300">
-              <h3 className="text-lg font-mono font-bold text-white">{exp.title}</h3>
-              <p className="text-dim mt-2 text-sm">{exp.hypothesis}</p>
-              <div className="mt-4 flex justify-between items-center">
-                <span className="text-xs font-mono text-cyan-400 uppercase">{exp.status}</span>
-                <Link to={`/logs/${exp._id}`} className="text-magenta-500 hover:text-white text-sm">LOG</Link>
+      </section>
+
+      {/* Tabbed Navigation */}
+      <section>
+        <div className="flex border-b border-white/10 mb-10 overflow-x-auto no-scrollbar scroll-smooth">
+          <button 
+            onClick={() => setActiveTab('library')}
+            className={`px-8 py-5 font-black uppercase tracking-widest text-sm transition-all whitespace-nowrap relative ${activeTab === 'library' ? 'text-cyan-400' : 'text-slate-500 hover:text-white'}`}
+          >
+            {t('library')}
+            {activeTab === 'library' && <div className="absolute bottom-0 left-0 w-full h-1 bg-cyan-400 animate-in fade-in slide-in-from-left-2"></div>}
+          </button>
+          <button 
+            onClick={() => setActiveTab('experiments')}
+            className={`px-8 py-5 font-black uppercase tracking-widest text-sm transition-all whitespace-nowrap relative ${activeTab === 'experiments' ? 'text-fuchsia-400' : 'text-slate-500 hover:text-white'}`}
+          >
+            {t('activeChallenges')}
+            {activeTab === 'experiments' && <div className="absolute bottom-0 left-0 w-full h-1 bg-fuchsia-400 animate-in fade-in slide-in-from-left-2"></div>}
+          </button>
+          <button 
+            onClick={() => setActiveTab('stats')}
+            className={`px-8 py-5 font-black uppercase tracking-widest text-sm transition-all whitespace-nowrap relative ${activeTab === 'stats' ? 'text-violet-400' : 'text-slate-500 hover:text-white'}`}
+          >
+            {t('tacticalStats')}
+            {activeTab === 'stats' && <div className="absolute bottom-0 left-0 w-full h-1 bg-violet-400 animate-in fade-in slide-in-from-left-2"></div>}
+          </button>
+        </div>
+
+        <div className="min-h-[400px]">
+          {activeTab === 'library' && (
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              {challengeTemplates.map((challenge) => (
+                <div key={challenge.id} className="group border border-white/10 bg-[#0a0a0a] p-6 transition-all hover:border-cyan-500/40 hover:translate-y-[-4px]">
+                  <div className="mb-5 flex items-start justify-between gap-3">
+                    <span className="border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                      {challenge.badge}
+                    </span>
+                    <span className="text-[10px] font-black font-mono text-cyan-400 uppercase tracking-widest">{challenge.duration}D</span>
+                  </div>
+                  <h3 className="text-lg font-black text-white uppercase tracking-tight leading-tight mb-3 group-hover:text-cyan-400 transition-colors">{challenge.title}</h3>
+                  <p className="text-sm leading-relaxed text-slate-400 line-clamp-3 mb-6">{challenge.description}</p>
+                  <div className="mt-auto border-t border-white/5 pt-5 flex items-center justify-between">
+                    <div className="flex gap-1.5">
+                      {challenge.metrics.slice(0, 3).map((_, i) => (
+                        <div key={i} className="w-1.5 h-1.5 rounded-full bg-cyan-500/30" />
+                      ))}
+                    </div>
+                    <Link to="/create-experiment" className="text-[10px] font-black uppercase tracking-widest text-cyan-400 group-hover:underline">START →</Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {activeTab === 'experiments' && (
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              {experiments.length === 0 ? (
+                <div className="col-span-full border border-dashed border-white/10 py-24 flex flex-col items-center justify-center text-slate-500">
+                  <ClipboardList className="mb-4 opacity-20" size={48} />
+                  <p className="font-black uppercase tracking-widest">No active experiments</p>
+                  <button onClick={() => setActiveTab('library')} className="mt-4 text-xs font-black text-cyan-400 hover:underline uppercase">Browse Library</button>
+                </div>
+              ) : (
+                experiments.map((exp) => (
+                  <div key={exp._id} className="border border-white/10 bg-[#0a0a0a] p-6 border-l-4 border-l-fuchsia-500">
+                    <div className="flex justify-between items-start mb-5">
+                      <span className="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 bg-fuchsia-500/10 text-fuchsia-300 border border-fuchsia-500/20">
+                        {exp.status}
+                      </span>
+                    </div>
+                    <h3 className="text-xl font-black text-white uppercase leading-tight">{exp.title}</h3>
+                    <p className="mt-4 text-sm text-slate-400 line-clamp-2 leading-relaxed italic opacity-80">{exp.hypothesis}</p>
+                    <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between">
+                      <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Status: Monitoring</div>
+                      <Link to={`/logs/${exp._id}`} className="bg-fuchsia-600 text-white px-5 py-2.5 text-xs font-black uppercase hover:bg-white hover:text-black transition-all">
+                        Log Entry
+                      </Link>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+
+          {activeTab === 'stats' && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="border border-white/10 bg-[#0a0a0a] p-10 hover:border-cyan-500/30 transition-all group">
+                <Timer className="mb-8 text-cyan-400 group-hover:scale-110 transition-transform" size={40} />
+                <div className="text-6xl font-black text-white tracking-tighter">{activeCount}</div>
+                <div className="text-xs font-black uppercase tracking-widest text-slate-500 mt-4">Active Lab Trials</div>
+              </div>
+              <div className="border border-white/10 bg-[#0a0a0a] p-10 hover:border-fuchsia-500/30 transition-all group">
+                <TrendingUp className="mb-8 text-fuchsia-400 group-hover:scale-110 transition-transform" size={40} />
+                <div className="text-6xl font-black text-white tracking-tighter">DAILY</div>
+                <div className="text-xs font-black uppercase tracking-widest text-slate-500 mt-4">Reflection Velocity</div>
+              </div>
+              <div className="border border-white/10 bg-[#0a0a0a] p-10 hover:border-violet-500/30 transition-all group">
+                <Activity className="mb-8 text-violet-400 group-hover:scale-110 transition-transform" size={40} />
+                <div className="text-6xl font-black text-white tracking-tighter">{challengeTemplates.length}</div>
+                <div className="text-xs font-black uppercase tracking-widest text-slate-500 mt-4">System Protocols</div>
               </div>
             </div>
-          ))}
+          )}
         </div>
-      </div>
-
-      {/* Column 2: Stats/Action Panel */}
-      <div className="bg-[#0a0a0a] border border-white/5 rounded-lg p-6">
-        <h2 className="text-xl font-bold uppercase tracking-widest text-magenta-500 mb-6">Tactical Stats</h2>
-        <div className="space-y-6">
-          <div className="flex items-center gap-4">
-            <Activity className="text-cyan-400" />
-            <div>
-              <div className="text-2xl font-mono">{experiments.length}</div>
-              <div className="text-xs text-dim">ACTIVE EXPERIMENTS</div>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <BarChart3 className="text-plasma-purple" />
-            <div>
-              <div className="text-2xl font-mono">12</div>
-              <div className="text-xs text-dim">VALIDATED INSIGHTS</div>
-            </div>
-          </div>
-        </div>
-      </div>
+      </section>
     </div>
   );
 };

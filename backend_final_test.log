@@ -1,0 +1,9 @@
+
+> backend@1.0.0 dev
+> tsx src/index.ts
+
+◇ injected env (4) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+◇ injected env (0) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+Attempting to connect to MongoDB at: cluster0.iig2vry.mongodb.net/lifeos?appName=Cluster0
+MongoDB Connected: ac-ab4pg6j-shard-00-01.iig2vry.mongodb.net
+Server running on http://0.0.0.0:5001

@@ -1,0 +1,7 @@
+
+> backend@1.0.0 dev
+> tsx src/index.ts
+
+◇ injected env (4) from .env // tip: ⌘ enable debugging { debug: true }
+◇ injected env (0) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
+Attempting to connect to MongoDB at: cluster0.gjovcnc.mongodb.net/?appName=Cluster0

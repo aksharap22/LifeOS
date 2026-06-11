@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import DailyLog from '../models/DailyLog.js';
 import MetricEntry from '../models/MetricEntry.js';
 
@@ -6,6 +7,10 @@ export const createDailyLog = async (req: Request, res: Response) => {
   const { experimentId, date, notes, entries } = req.body;
 
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({ message: 'Database not connected.' });
+    }
+
     const dailyLog = await DailyLog.create({
       userId: (req as any).user._id,
       experimentId,
@@ -23,7 +28,8 @@ export const createDailyLog = async (req: Request, res: Response) => {
 
     res.status(201).json(dailyLog);
   } catch (error) {
-    res.status(500).json({ message: 'Error creating daily log' });
+    console.error('Error in createDailyLog:', error);
+    res.status(500).json({ message: 'Error creating daily log', error: error instanceof Error ? error.message : String(error) });
   }
 };
 
@@ -31,10 +37,14 @@ export const getDailyLogs = async (req: Request, res: Response) => {
   const { experimentId } = req.query;
 
   try {
-    const logs = await DailyLog.find({
-      userId: (req as any).user._id,
-      experimentId: experimentId as string,
-    }).sort({ date: -1 });
+    const query: any = { userId: (req as any).user._id };
+    if (experimentId) {
+      query.experimentId = experimentId as string;
+    }
+
+    const logs = await DailyLog.find(query)
+      .populate('experimentId', 'title')
+      .sort({ date: -1 });
     res.json(logs);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching daily logs' });
