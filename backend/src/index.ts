@@ -36,6 +36,11 @@ app.get('/', (req, res) => {
 app.post('/api/v1/auth/register', registerUser);
 app.post('/api/v1/auth/login', loginUser);
 
+// Experiments
+app.post('/api/v1/experiments', protect, createExperiment);
+app.get('/api/v1/experiments', protect, getExperiments);
+app.get('/api/v1/experiments/:id', protect, getExperimentById);
+app.get('/api/v1/experiments/:id/results', protect, getExperimentResults);
 app.delete('/api/v1/experiments/:id', protect, deleteExperiment);
 
 // Metrics/Logs
