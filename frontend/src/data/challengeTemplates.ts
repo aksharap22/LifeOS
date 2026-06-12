@@ -16,7 +16,28 @@ export type ChallengeTemplate = {
   prompts: string[];
 };
 
+export const customChallengeTemplate: ChallengeTemplate = {
+  id: 'custom',
+  title: 'Custom Challenge',
+  badge: 'Personal',
+  category: 'Custom',
+  duration: 7,
+  description: 'Build a personal challenge around a behavior, fear, habit, or question you want to test.',
+  hypothesis: 'A small structured challenge will reveal a useful pattern about my behavior.',
+  metrics: [
+    { name: 'Mood', type: 'Rating Scale' },
+    { name: 'Energy', type: 'Rating Scale' },
+    { name: 'Consistency', type: 'Percentage' },
+  ],
+  prompts: [
+    'What did you do today for the challenge?',
+    'How consistent were you?',
+    'What did you learn about yourself?',
+  ],
+};
+
 export const challengeTemplates: ChallengeTemplate[] = [
+  customChallengeTemplate,
   {
     id: 'chronotype-quest',
     title: 'Chronotype Quest',
@@ -258,23 +279,3 @@ export const challengeTemplates: ChallengeTemplate[] = [
     ],
   },
 ];
-
-export const customChallengeTemplate: ChallengeTemplate = {
-  id: 'custom',
-  title: 'Custom Challenge',
-  badge: 'Personal',
-  category: 'Custom',
-  duration: 7,
-  description: 'Build a personal challenge around a behavior, fear, habit, or question you want to test.',
-  hypothesis: 'A small structured challenge will reveal a useful pattern about my behavior.',
-  metrics: [
-    { name: 'Mood', type: 'Rating Scale' },
-    { name: 'Energy', type: 'Rating Scale' },
-    { name: 'Consistency', type: 'Percentage' },
-  ],
-  prompts: [
-    'What did you do today for the challenge?',
-    'How consistent were you?',
-    'What did you learn about yourself?',
-  ],
-};
