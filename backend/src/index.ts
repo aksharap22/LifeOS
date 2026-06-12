@@ -45,8 +45,8 @@ app.get('/api/v1/logs', protect, getDailyLogs);
 app.post('/api/v1/ai/generate/:experimentId', protect, triggerAIAnalysis);
 app.get('/api/v1/manual', protect, getOperatingManual);
 
-const PORT = process.env.PORT || 5001;
+const PORT = Number(process.env.PORT) || 10000;
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });
