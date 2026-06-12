@@ -45,4 +45,8 @@ app.get('/api/v1/logs', protect, getDailyLogs);
 app.post('/api/v1/ai/generate/:experimentId', protect, triggerAIAnalysis);
 app.get('/api/v1/manual', protect, getOperatingManual);
 
-export const handler = serverless(app);
+const PORT = process.env.PORT || 5001;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
