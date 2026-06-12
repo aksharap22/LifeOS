@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Save } from 'lucide-react';
 import api from '../services/api';
 import { challengeTemplates, customChallengeTemplate } from '../data/challengeTemplates';

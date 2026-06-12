@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
 import { Link } from 'react-router-dom';
-import { Activity, Plus, BarChart3, Flame, Timer, TrendingUp } from 'lucide-react';
+import { Activity, Plus, Flame, Timer, TrendingUp, Clipboard } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useLanguage } from '../hooks/useLanguage';
 import { challengeTemplates } from '../data/challengeTemplates';
@@ -122,7 +122,7 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
               {experiments.length === 0 ? (
                 <div className="col-span-full border border-dashed border-white/10 py-24 flex flex-col items-center justify-center text-slate-500">
-                  <ClipboardList className="mb-4 opacity-20" size={48} />
+                  <Clipboard className="mb-4 opacity-20" size={48} />
                   <p className="font-black uppercase tracking-widest">No active experiments</p>
                   <button onClick={() => setActiveTab('library')} className="mt-4 text-xs font-black text-cyan-400 hover:underline uppercase">Browse Library</button>
                 </div>
