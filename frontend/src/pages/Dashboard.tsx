@@ -1,32 +1,35 @@
 import { useState, useEffect, useRef } from 'react';
 import api from '../services/api';
 import { Link } from 'react-router-dom';
-import { Activity, Plus, Flame, Timer, TrendingUp, Clipboard } from 'lucide-react';
+import { Activity, Plus, Flame, Timer, TrendingUp, Clipboard, Lightbulb } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useLanguage } from '../hooks/useLanguage';
 import { challengeTemplates } from '../data/challengeTemplates';
 
 const Dashboard = () => {
   const [experiments, setExperiments] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'library' | 'experiments' | 'stats'>('library');
+  const [manual, setManual] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState<'library' | 'experiments' | 'stats' | 'insights'>('library');
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
   const { user } = useAuth();
   const { t } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const fetchExperiments = async () => {
-      if (!user) {
-        setExperiments([]);
-        return;
-      }
+    const fetchData = async () => {
+      if (!user) return;
       try {
-        const { data } = await api.get('/experiments');
-        setExperiments(data);
+        const [expRes, manRes] = await Promise.all([
+          api.get('/experiments'),
+          api.get('/manual')
+        ]);
+        setExperiments(expRes.data);
+        setManual(manRes.data);
       } catch (err) {
-        console.error('Failed to fetch experiments');
+        console.error('Failed to fetch data');
       }
     };
-    fetchExperiments();
+    fetchData();
   }, [user]);
 
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -73,10 +76,13 @@ const Dashboard = () => {
             {t('library')} {activeTab === 'library' && <div className="absolute bottom-0 left-0 w-full h-1 bg-cyan-400"></div>}
           </button>
           <button onClick={() => setActiveTab('experiments')} className={`px-8 py-5 font-black uppercase tracking-widest text-sm transition-all whitespace-nowrap relative ${activeTab === 'experiments' ? 'text-fuchsia-400' : 'text-slate-500 hover:text-white'}`}>
-            {t('activeChallenges')} {activeTab === 'experiments' && <div className="absolute bottom-0 left-0 w-full h-1 bg-fuchsia-400"></div>}
+            {t('experimentsTab')} {activeTab === 'experiments' && <div className="absolute bottom-0 left-0 w-full h-1 bg-fuchsia-400"></div>}
           </button>
           <button onClick={() => setActiveTab('stats')} className={`px-8 py-5 font-black uppercase tracking-widest text-sm transition-all whitespace-nowrap relative ${activeTab === 'stats' ? 'text-violet-400' : 'text-slate-500 hover:text-white'}`}>
-            {t('tacticalStats')} {activeTab === 'stats' && <div className="absolute bottom-0 left-0 w-full h-1 bg-violet-400"></div>}
+            {t('statsTab')} {activeTab === 'stats' && <div className="absolute bottom-0 left-0 w-full h-1 bg-violet-400"></div>}
+          </button>
+          <button onClick={() => setActiveTab('insights')} className={`px-8 py-5 font-black uppercase tracking-widest text-sm transition-all whitespace-nowrap relative ${activeTab === 'insights' ? 'text-amber-400' : 'text-slate-500 hover:text-white'}`}>
+            INSIGHTS {activeTab === 'insights' && <div className="absolute bottom-0 left-0 w-full h-1 bg-amber-400"></div>}
           </button>
         </div>
 
@@ -84,7 +90,12 @@ const Dashboard = () => {
           {activeTab === 'library' && (
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
               {challengeTemplates.map((challenge) => (
-                <div key={challenge.id} className="card-glow group relative border border-white/10 bg-[#0a0a0a] p-6 transition-all duration-300 overflow-hidden">
+                <div 
+                  key={challenge.id} 
+                  onMouseEnter={() => setHoveredId(challenge.id)}
+                  onMouseLeave={() => setHoveredId(null)}
+                  className={`card-glow group relative border p-6 transition-all duration-300 overflow-hidden ${hoveredId === challenge.id ? 'bg-white/5 border-cyan-500/40 shadow-[0_0_20px_rgba(34,211,238,0.05)] translate-y-[-4px]' : 'border-white/10 bg-[#0a0a0a]'}`}
+                >
                   <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" style={{ background: 'radial-gradient(200px circle at var(--mouse-x) var(--mouse-y), rgba(34,211,238,0.1), transparent 80%)' }} />
                   <div className="relative z-10">
                     <div className="mb-5 flex items-start justify-between gap-3">
@@ -100,7 +111,8 @@ const Dashboard = () => {
             </div>
           )}
           {activeTab === 'experiments' && (
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            /* ... experiments logic ... */
+             <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
               {experiments.length === 0 ? (
                 <div className="col-span-full border border-dashed border-white/10 py-24 flex flex-col items-center justify-center text-slate-500">
                   <Clipboard className="mb-4 opacity-20" size={48} />
@@ -125,7 +137,8 @@ const Dashboard = () => {
             </div>
           )}
           {activeTab === 'stats' && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            /* ... stats logic ... */
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
               <div className="border border-white/10 bg-[#0a0a0a] p-10 hover:border-cyan-500/30 transition-all group">
                 <Timer className="mb-8 text-cyan-400 group-hover:scale-110 transition-transform" size={40} />
                 <div className="text-6xl font-black text-white tracking-tighter">{activeCount}</div>
@@ -140,6 +153,36 @@ const Dashboard = () => {
                 <Activity className="mb-8 text-violet-400 group-hover:scale-110 transition-transform" size={40} />
                 <div className="text-6xl font-black text-white tracking-tighter">{challengeTemplates.length}</div>
                 <div className="text-xs font-black uppercase tracking-widest text-slate-500 mt-4">System Protocols</div>
+              </div>
+            </div>
+          )}
+          {activeTab === 'insights' && (
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="max-w-4xl border border-white/10 bg-[#0a0a0a] p-10">
+                <div className="flex items-center gap-4 mb-8">
+                  <Lightbulb className="text-amber-400" size={32} />
+                  <h2 className="text-2xl font-black uppercase tracking-widest text-white">Validated Truths</h2>
+                </div>
+                {!manual ? (
+                  <p className="text-slate-500">No insights yet. Complete more experiments!</p>
+                ) : (
+                  <div className="space-y-8">
+                    <div>
+                      <h3 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-3">Summary</h3>
+                      <p className="text-lg leading-relaxed text-slate-300">{manual.summary}</p>
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-4">Recommendations</h3>
+                      <ul className="space-y-4">
+                        {manual.recommendations.map((rec: any, i: number) => (
+                          <li key={i} className="border-l-4 border-amber-500 bg-amber-500/5 p-4 text-sm text-slate-200">
+                            {rec.text}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}

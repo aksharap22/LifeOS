@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
 import './index.css';
 import { AuthProvider, useAuth } from './hooks/useAuth';
@@ -9,10 +10,12 @@ import CreateExperiment from './pages/CreateExperiment';
 import DailyLogForm from './components/DailyLogForm';
 import Results from './pages/Results';
 import ActivityLogs from './pages/ActivityLogs';
+import { Menu, X } from 'lucide-react';
 
 const Navigation = () => {
   const { user, logout } = useAuth();
   const { t, setLanguage, language } = useLanguage();
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <nav className="sticky top-0 z-50 p-4 bg-[#0a0a0a]/90 backdrop-blur-md border-b border-cyan-500/30 flex justify-between items-center text-sm">
@@ -20,6 +23,27 @@ const Navigation = () => {
         <Link to="/" className="text-2xl font-black tracking-tighter text-cyan-400 hover:text-white transition" style={{ fontFamily: 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif', fontWeight: 900 }}>
           {t('appName')}
         </Link>
+      </div>
+      
+      {/* Mobile Toggle */}
+      <button className="md:hidden text-white" onClick={() => setIsOpen(!isOpen)}>
+        {isOpen ? <X /> : <Menu />}
+      </button>
+
+      {/* Desktop Links */}
+      <div className={`absolute md:static top-full left-0 w-full md:w-auto bg-[#0a0a0a] md:bg-transparent p-4 md:p-0 flex flex-col md:flex-row items-center gap-4 ${isOpen ? 'flex' : 'hidden md:flex'}`}>
+        {user ? (
+          <>
+            <Link to="/" className="hover:text-cyan-400 uppercase tracking-widest" onClick={() => setIsOpen(false)}>{t('dashboard')}</Link>
+            <Link to="/activity" className="hover:text-cyan-400 uppercase tracking-widest" onClick={() => setIsOpen(false)}>{t('activity')}</Link>
+            <div className="flex items-center gap-2 border-l border-white/10 pl-3 sm:pl-4">
+              <span className="font-mono text-xs text-slate-400">{user.name}</span>
+              <button onClick={() => { logout(); setIsOpen(false); }} className="text-magenta-500 hover:text-white transition uppercase tracking-widest">EXIT</button>
+            </div>
+          </>
+        ) : (
+          <Link to="/login" className="border border-cyan-500 text-cyan-400 px-4 py-1 rounded hover:bg-cyan-500/10 transition uppercase tracking-widest">LOGIN</Link>
+        )}
         <div className="flex gap-2 text-[10px] font-bold">
           {['en', 'hi', 'te'].map((lang) => (
             <button
@@ -32,18 +56,6 @@ const Navigation = () => {
           ))}
         </div>
       </div>
-      {user ? (
-        <div className="flex items-center gap-3 sm:gap-6">
-          <Link to="/" className="hover:text-cyan-400 uppercase tracking-widest">{t('dashboard')}</Link>
-          <Link to="/activity" className="hover:text-cyan-400 uppercase tracking-widest">{t('activity')}</Link>
-          <div className="flex items-center gap-2 border-l border-white/10 pl-3 sm:pl-4">
-            <span className="hidden font-mono text-xs text-slate-400 sm:inline">{user.name}</span>
-            <button onClick={logout} className="text-magenta-500 hover:text-white transition uppercase tracking-widest">{t('exit')}</button>
-          </div>
-        </div>
-      ) : (
-        <Link to="/login" className="border border-cyan-500 text-cyan-400 px-4 py-1 rounded hover:bg-cyan-500/10 transition uppercase tracking-widest">{t('login')}</Link>
-      )}
     </nav>
   );
 };
