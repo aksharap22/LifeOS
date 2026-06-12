@@ -34,10 +34,13 @@ const Dashboard = () => {
   const deleteExperiment = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this challenge?')) return;
     try {
-      await api.delete(`/experiments/${id}`);
+      console.log(`Attempting to delete experiment: ${id}`);
+      const response = await api.delete(`/experiments/${id}`);
+      console.log('Delete response:', response);
       setExperiments(experiments.filter((exp) => exp._id !== id));
     } catch (err) {
-      console.error('Failed to delete experiment');
+      console.error('Failed to delete experiment:', err);
+      alert('Failed to delete. Check console for details.');
     }
   };
 
