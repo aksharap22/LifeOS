@@ -79,6 +79,7 @@ export const createExperiment = async (req: Request, res: Response) => {
 };
 
 export const deleteExperiment = async (req: Request, res: Response) => {
+  console.log(`Delete request received for ID: ${req.params.id}`);
   try {
     if (!isDbConnected()) {
       return res.status(503).json({ message: 'Database not connected.' });
@@ -88,11 +89,13 @@ export const deleteExperiment = async (req: Request, res: Response) => {
       userId: (req as any).user._id,
     });
     if (!experiment) {
+      console.log(`Experiment ${req.params.id} not found for user`);
       return res.status(404).json({ message: 'Experiment not found' });
     }
     await Metric.deleteMany({ experimentId: req.params.id });
     res.json({ message: 'Experiment deleted' });
   } catch (error) {
+    console.error('Error deleting experiment:', error);
     res.status(500).json({ message: 'Error deleting experiment' });
   }
 };
