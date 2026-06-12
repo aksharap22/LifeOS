@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import api from '../services/api';
 import { Link } from 'react-router-dom';
 import { Activity, Plus, Flame, Timer, TrendingUp, Clipboard } from 'lucide-react';
@@ -9,9 +9,9 @@ import { challengeTemplates } from '../data/challengeTemplates';
 const Dashboard = () => {
   const [experiments, setExperiments] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'library' | 'experiments' | 'stats'>('library');
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
   const { user } = useAuth();
   const { t } = useLanguage();
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchExperiments = async () => {
@@ -19,7 +19,6 @@ const Dashboard = () => {
         setExperiments([]);
         return;
       }
-
       try {
         const { data } = await api.get('/experiments');
         setExperiments(data);
@@ -30,11 +29,22 @@ const Dashboard = () => {
     fetchExperiments();
   }, [user]);
 
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!containerRef.current) return;
+    const cards = containerRef.current.querySelectorAll('.card-glow');
+    cards.forEach((card: any) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      card.style.setProperty('--mouse-x', `${x}px`);
+      card.style.setProperty('--mouse-y', `${y}px`);
+    });
+  };
+
   const activeCount = experiments.filter((exp) => exp.status === 'Active').length;
 
   return (
     <div className="space-y-12 pb-20">
-      {/* Hero Section */}
       <section className="py-16 border-b border-white/5 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-fuchsia-600/10 blur-[120px] rounded-full -mr-48 -mt-24"></div>
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-cyan-600/10 blur-[100px] rounded-full -ml-32 -mb-16"></div>
@@ -45,51 +55,28 @@ const Dashboard = () => {
             LIFESTYLE LAB
           </div>
           <div className="space-y-4">
-            <h1 className="text-3xl md:text-5xl font-black leading-tight text-white tracking-tight uppercase">
-              {t('heroLine1')}
-            </h1>
-            <h1 className="text-3xl md:text-5xl font-black leading-tight text-white/90 tracking-tight uppercase">
-              {t('heroLine2')}
-            </h1>
-            <h1 className="text-3xl md:text-5xl font-black leading-tight text-cyan-400 tracking-tight uppercase">
-              {t('heroLine3')}
-            </h1>
+            <h1 className="text-3xl md:text-5xl font-black leading-tight text-white tracking-tight uppercase">{t('heroLine1')}</h1>
+            <h1 className="text-3xl md:text-5xl font-black leading-tight text-white/90 tracking-tight uppercase">{t('heroLine2')}</h1>
+            <h1 className="text-3xl md:text-5xl font-black leading-tight text-cyan-400 tracking-tight uppercase">{t('heroLine3')}</h1>
           </div>
-          <div className="mt-12 flex flex-wrap gap-5">
-            <Link 
-              to={user ? '/create-experiment' : '/register'} 
-              className="group relative inline-flex items-center gap-3 bg-white px-10 py-4 font-black text-black transition-all hover:bg-cyan-400 uppercase text-lg"
-            >
-              <Plus size={22} />
-              {user ? t('acceptChallenge') : t('startNow')}
+          <div className="mt-12">
+            <Link to={user ? '/create-experiment' : '/register'} className="inline-flex items-center gap-3 bg-white px-10 py-4 font-black text-black transition-all hover:bg-cyan-400 uppercase text-lg">
+              <Plus size={22} /> {user ? t('acceptChallenge') : t('startNow')}
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Tabbed Navigation */}
-      <section>
+      <section onMouseMove={handleMouseMove} ref={containerRef}>
         <div className="flex border-b border-white/10 mb-10 overflow-x-auto no-scrollbar scroll-smooth">
-          <button 
-            onClick={() => setActiveTab('library')}
-            className={`px-8 py-5 font-black uppercase tracking-widest text-sm transition-all whitespace-nowrap relative ${activeTab === 'library' ? 'text-cyan-400' : 'text-slate-500 hover:text-white'}`}
-          >
-            {t('library')}
-            {activeTab === 'library' && <div className="absolute bottom-0 left-0 w-full h-1 bg-cyan-400 animate-in fade-in slide-in-from-left-2"></div>}
+          <button onClick={() => setActiveTab('library')} className={`px-8 py-5 font-black uppercase tracking-widest text-sm transition-all whitespace-nowrap relative ${activeTab === 'library' ? 'text-cyan-400' : 'text-slate-500 hover:text-white'}`}>
+            {t('library')} {activeTab === 'library' && <div className="absolute bottom-0 left-0 w-full h-1 bg-cyan-400"></div>}
           </button>
-          <button 
-            onClick={() => setActiveTab('experiments')}
-            className={`px-8 py-5 font-black uppercase tracking-widest text-sm transition-all whitespace-nowrap relative ${activeTab === 'experiments' ? 'text-fuchsia-400' : 'text-slate-500 hover:text-white'}`}
-          >
-            {t('activeChallenges')}
-            {activeTab === 'experiments' && <div className="absolute bottom-0 left-0 w-full h-1 bg-fuchsia-400 animate-in fade-in slide-in-from-left-2"></div>}
+          <button onClick={() => setActiveTab('experiments')} className={`px-8 py-5 font-black uppercase tracking-widest text-sm transition-all whitespace-nowrap relative ${activeTab === 'experiments' ? 'text-fuchsia-400' : 'text-slate-500 hover:text-white'}`}>
+            {t('activeChallenges')} {activeTab === 'experiments' && <div className="absolute bottom-0 left-0 w-full h-1 bg-fuchsia-400"></div>}
           </button>
-          <button 
-            onClick={() => setActiveTab('stats')}
-            className={`px-8 py-5 font-black uppercase tracking-widest text-sm transition-all whitespace-nowrap relative ${activeTab === 'stats' ? 'text-violet-400' : 'text-slate-500 hover:text-white'}`}
-          >
-            {t('tacticalStats')}
-            {activeTab === 'stats' && <div className="absolute bottom-0 left-0 w-full h-1 bg-violet-400 animate-in fade-in slide-in-from-left-2"></div>}
+          <button onClick={() => setActiveTab('stats')} className={`px-8 py-5 font-black uppercase tracking-widest text-sm transition-all whitespace-nowrap relative ${activeTab === 'stats' ? 'text-violet-400' : 'text-slate-500 hover:text-white'}`}>
+            {t('tacticalStats')} {activeTab === 'stats' && <div className="absolute bottom-0 left-0 w-full h-1 bg-violet-400"></div>}
           </button>
         </div>
 
@@ -97,33 +84,21 @@ const Dashboard = () => {
           {activeTab === 'library' && (
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
               {challengeTemplates.map((challenge) => (
-                <div 
-                  key={challenge.id} 
-                  onMouseEnter={() => setHoveredId(challenge.id)}
-                  onMouseLeave={() => setHoveredId(null)}
-                  className={`group border p-6 transition-all duration-300 ${hoveredId === challenge.id ? 'bg-white/5 border-cyan-500/40 shadow-[0_0_20px_rgba(34,211,238,0.05)] translate-y-[-4px]' : 'border-white/10 bg-[#0a0a0a]'}`}
-                >
-                  <div className="mb-5 flex items-start justify-between gap-3">
-                    <span className="border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-slate-400">
-                      {challenge.badge}
-                    </span>
-                    <span className="text-[10px] font-black font-mono text-cyan-400 uppercase tracking-widest">{challenge.duration}D</span>
-                  </div>
-                  <h3 className="text-lg font-black text-white uppercase tracking-tight leading-tight mb-3 group-hover:text-cyan-400 transition-colors">{challenge.title}</h3>
-                  <p className="text-sm leading-relaxed text-slate-400 line-clamp-3 mb-6">{challenge.description}</p>
-                  <div className="mt-auto border-t border-white/5 pt-5 flex items-center justify-between">
-                    <div className="flex gap-1.5">
-                      {challenge.metrics.slice(0, 3).map((_, i) => (
-                        <div key={i} className="w-1.5 h-1.5 rounded-full bg-cyan-500/30" />
-                      ))}
+                <div key={challenge.id} className="card-glow group relative border border-white/10 bg-[#0a0a0a] p-6 transition-all duration-300 overflow-hidden">
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" style={{ background: 'radial-gradient(200px circle at var(--mouse-x) var(--mouse-y), rgba(34,211,238,0.1), transparent 80%)' }} />
+                  <div className="relative z-10">
+                    <div className="mb-5 flex items-start justify-between gap-3">
+                      <span className="border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-slate-400">{challenge.badge}</span>
+                      <span className="text-[10px] font-black font-mono text-cyan-400 uppercase tracking-widest">{challenge.duration}D</span>
                     </div>
+                    <h3 className="text-lg font-black text-white uppercase tracking-tight leading-tight mb-3 group-hover:text-cyan-400 transition-colors">{challenge.title}</h3>
+                    <p className="text-sm leading-relaxed text-slate-400 line-clamp-3 mb-6">{challenge.description}</p>
                     <Link to="/create-experiment" className="text-[10px] font-black uppercase tracking-widest text-cyan-400 group-hover:underline">START →</Link>
                   </div>
                 </div>
               ))}
             </div>
           )}
-
           {activeTab === 'experiments' && (
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
               {experiments.length === 0 ? (
@@ -136,24 +111,19 @@ const Dashboard = () => {
                 experiments.map((exp) => (
                   <div key={exp._id} className="border border-white/10 bg-[#0a0a0a] p-6 border-l-4 border-l-fuchsia-500">
                     <div className="flex justify-between items-start mb-5">
-                      <span className="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 bg-fuchsia-500/10 text-fuchsia-300 border border-fuchsia-500/20">
-                        {exp.status}
-                      </span>
+                      <span className="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 bg-fuchsia-500/10 text-fuchsia-300 border border-fuchsia-500/20">{exp.status}</span>
                     </div>
                     <h3 className="text-xl font-black text-white uppercase leading-tight">{exp.title}</h3>
                     <p className="mt-4 text-sm text-slate-400 line-clamp-2 leading-relaxed italic opacity-80">{exp.hypothesis}</p>
                     <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between">
                       <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Status: Monitoring</div>
-                      <Link to={`/logs/${exp._id}`} className="bg-fuchsia-600 text-white px-5 py-2.5 text-xs font-black uppercase hover:bg-white hover:text-black transition-all">
-                        Log Entry
-                      </Link>
+                      <Link to={`/logs/${exp._id}`} className="bg-fuchsia-600 text-white px-5 py-2.5 text-xs font-black uppercase hover:bg-white hover:text-black transition-all">Log Entry</Link>
                     </div>
                   </div>
                 ))
               )}
             </div>
           )}
-
           {activeTab === 'stats' && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
               <div className="border border-white/10 bg-[#0a0a0a] p-10 hover:border-cyan-500/30 transition-all group">
