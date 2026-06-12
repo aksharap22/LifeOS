@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import serverless from 'serverless-http';
 import connectDB from './config/db.js';
 import { registerUser, loginUser } from './api/auth.js';
-import { createExperiment, getExperimentById, getExperiments, getExperimentResults } from './api/experiments.js';
+import { createExperiment, getExperimentById, getExperiments, getExperimentResults, deleteExperiment } from './api/experiments.js';
 import { createDailyLog, getDailyLogs } from './api/metrics.js';
 import { triggerAIAnalysis } from './api/ai.js';
 import { getOperatingManual } from './api/manual.js';
@@ -36,11 +36,7 @@ app.get('/', (req, res) => {
 app.post('/api/v1/auth/register', registerUser);
 app.post('/api/v1/auth/login', loginUser);
 
-// Experiments
-app.post('/api/v1/experiments', protect, createExperiment);
-app.get('/api/v1/experiments', protect, getExperiments);
-app.get('/api/v1/experiments/:id', protect, getExperimentById);
-app.get('/api/v1/experiments/:id/results', protect, getExperimentResults);
+app.delete('/api/v1/experiments/:id', protect, deleteExperiment);
 
 // Metrics/Logs
 app.post('/api/v1/logs', protect, createDailyLog);

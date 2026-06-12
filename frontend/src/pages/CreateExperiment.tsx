@@ -39,7 +39,7 @@ const CreateExperiment = () => {
 
     try {
       await api.post('/experiments', {
-        title,
+        title: selectedTemplate.title, // Fixed: use template title
         description,
         hypothesis,
         category,

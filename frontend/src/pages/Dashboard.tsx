@@ -1,36 +1,44 @@
 import { useState, useEffect, useRef } from 'react';
 import api from '../services/api';
 import { Link } from 'react-router-dom';
-import { Activity, Plus, Flame, Timer, TrendingUp, Clipboard, Lightbulb } from 'lucide-react';
+import { Activity, Plus, Flame, Timer, TrendingUp, Clipboard, Trash2 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useLanguage } from '../hooks/useLanguage';
 import { challengeTemplates } from '../data/challengeTemplates';
 
 const Dashboard = () => {
   const [experiments, setExperiments] = useState<any[]>([]);
-  const [manual, setManual] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<'library' | 'experiments' | 'stats' | 'insights'>('library');
+  const [activeTab, setActiveTab] = useState<'library' | 'experiments' | 'stats'>('library');
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const { user } = useAuth();
   const { t } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (!user) return;
+    const fetchExperiments = async () => {
+      if (!user) {
+        setExperiments([]);
+        return;
+      }
       try {
-        const [expRes, manRes] = await Promise.all([
-          api.get('/experiments'),
-          api.get('/manual')
-        ]);
-        setExperiments(expRes.data);
-        setManual(manRes.data);
+        const { data } = await api.get('/experiments');
+        setExperiments(data);
       } catch (err) {
-        console.error('Failed to fetch data');
+        console.error('Failed to fetch experiments');
       }
     };
-    fetchData();
+    fetchExperiments();
   }, [user]);
+
+  const deleteExperiment = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this challenge?')) return;
+    try {
+      await api.delete(`/experiments/${id}`);
+      setExperiments(experiments.filter((exp) => exp._id !== id));
+    } catch (err) {
+      console.error('Failed to delete experiment');
+    }
+  };
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!containerRef.current) return;
@@ -76,13 +84,10 @@ const Dashboard = () => {
             {t('library')} {activeTab === 'library' && <div className="absolute bottom-0 left-0 w-full h-1 bg-cyan-400"></div>}
           </button>
           <button onClick={() => setActiveTab('experiments')} className={`px-8 py-5 font-black uppercase tracking-widest text-sm transition-all whitespace-nowrap relative ${activeTab === 'experiments' ? 'text-fuchsia-400' : 'text-slate-500 hover:text-white'}`}>
-            {t('experimentsTab')} {activeTab === 'experiments' && <div className="absolute bottom-0 left-0 w-full h-1 bg-fuchsia-400"></div>}
+            {t('activeChallenges')} {activeTab === 'experiments' && <div className="absolute bottom-0 left-0 w-full h-1 bg-fuchsia-400"></div>}
           </button>
           <button onClick={() => setActiveTab('stats')} className={`px-8 py-5 font-black uppercase tracking-widest text-sm transition-all whitespace-nowrap relative ${activeTab === 'stats' ? 'text-violet-400' : 'text-slate-500 hover:text-white'}`}>
-            {t('statsTab')} {activeTab === 'stats' && <div className="absolute bottom-0 left-0 w-full h-1 bg-violet-400"></div>}
-          </button>
-          <button onClick={() => setActiveTab('insights')} className={`px-8 py-5 font-black uppercase tracking-widest text-sm transition-all whitespace-nowrap relative ${activeTab === 'insights' ? 'text-amber-400' : 'text-slate-500 hover:text-white'}`}>
-            INSIGHTS {activeTab === 'insights' && <div className="absolute bottom-0 left-0 w-full h-1 bg-amber-400"></div>}
+            {t('tacticalStats')} {activeTab === 'stats' && <div className="absolute bottom-0 left-0 w-full h-1 bg-violet-400"></div>}
           </button>
         </div>
 
@@ -111,8 +116,7 @@ const Dashboard = () => {
             </div>
           )}
           {activeTab === 'experiments' && (
-            /* ... experiments logic ... */
-             <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
               {experiments.length === 0 ? (
                 <div className="col-span-full border border-dashed border-white/10 py-24 flex flex-col items-center justify-center text-slate-500">
                   <Clipboard className="mb-4 opacity-20" size={48} />
@@ -121,9 +125,14 @@ const Dashboard = () => {
                 </div>
               ) : (
                 experiments.map((exp) => (
-                  <div key={exp._id} className="border border-white/10 bg-[#0a0a0a] p-6 border-l-4 border-l-fuchsia-500">
+                  <div key={exp._id} className="border border-white/10 bg-[#0a0a0a] p-6 border-l-4 border-l-fuchsia-500 flex flex-col justify-between">
                     <div className="flex justify-between items-start mb-5">
-                      <span className="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 bg-fuchsia-500/10 text-fuchsia-300 border border-fuchsia-500/20">{exp.status}</span>
+                      <span className="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 bg-fuchsia-500/10 text-fuchsia-300 border border-fuchsia-500/20">
+                        {exp.status}
+                      </span>
+                      <button onClick={() => deleteExperiment(exp._id)} className="text-slate-500 hover:text-red-500 transition-colors">
+                        <Trash2 size={16} />
+                      </button>
                     </div>
                     <h3 className="text-xl font-black text-white uppercase leading-tight">{exp.title}</h3>
                     <p className="mt-4 text-sm text-slate-400 line-clamp-2 leading-relaxed italic opacity-80">{exp.hypothesis}</p>
@@ -137,8 +146,7 @@ const Dashboard = () => {
             </div>
           )}
           {activeTab === 'stats' && (
-            /* ... stats logic ... */
-             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
               <div className="border border-white/10 bg-[#0a0a0a] p-10 hover:border-cyan-500/30 transition-all group">
                 <Timer className="mb-8 text-cyan-400 group-hover:scale-110 transition-transform" size={40} />
                 <div className="text-6xl font-black text-white tracking-tighter">{activeCount}</div>
@@ -153,36 +161,6 @@ const Dashboard = () => {
                 <Activity className="mb-8 text-violet-400 group-hover:scale-110 transition-transform" size={40} />
                 <div className="text-6xl font-black text-white tracking-tighter">{challengeTemplates.length}</div>
                 <div className="text-xs font-black uppercase tracking-widest text-slate-500 mt-4">System Protocols</div>
-              </div>
-            </div>
-          )}
-          {activeTab === 'insights' && (
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <div className="max-w-4xl border border-white/10 bg-[#0a0a0a] p-10">
-                <div className="flex items-center gap-4 mb-8">
-                  <Lightbulb className="text-amber-400" size={32} />
-                  <h2 className="text-2xl font-black uppercase tracking-widest text-white">Validated Truths</h2>
-                </div>
-                {!manual ? (
-                  <p className="text-slate-500">No insights yet. Complete more experiments!</p>
-                ) : (
-                  <div className="space-y-8">
-                    <div>
-                      <h3 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-3">Summary</h3>
-                      <p className="text-lg leading-relaxed text-slate-300">{manual.summary}</p>
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-4">Recommendations</h3>
-                      <ul className="space-y-4">
-                        {manual.recommendations.map((rec: any, i: number) => (
-                          <li key={i} className="border-l-4 border-amber-500 bg-amber-500/5 p-4 text-sm text-slate-200">
-                            {rec.text}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           )}
