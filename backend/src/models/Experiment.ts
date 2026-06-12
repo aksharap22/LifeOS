@@ -21,7 +21,7 @@ const ExperimentSchema: Schema = new Schema(
     hypothesis: { type: String, required: true },
     category: {
       type: String,
-      enum: ['Productivity', 'Health', 'Sleep', 'Social', 'Emotional', 'Attention', 'Growth', 'Custom'],
+      enum: ['Productivity', 'Health', 'Sleep', 'Social', 'Emotional', 'Attention', 'Growth', 'Custom', 'Lifestyle', 'Behavioral'],
       default: 'Custom',
     },
     duration: { type: Number, required: true },
