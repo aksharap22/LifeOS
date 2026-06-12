@@ -82,7 +82,7 @@ export const translations: Translations = {
   statsTab: {
     en: 'Command Center',
     hi: 'कमांड सेंटर',
-    te: 'కమాండ్ సెంటర్',
+    te: 'कमांड सेंटर',
   },
   empathyDefault: {
     en: 'Great job logging today! Consistency is the key to self-discovery.',

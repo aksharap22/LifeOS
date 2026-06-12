@@ -10,10 +10,6 @@ const ActivityLogs = () => {
   useEffect(() => {
     const fetchLogs = async () => {
       try {
-        // Fetching all logs. Since the current API getDailyLogs requires an experimentId, 
-        // I might need to update the backend to support fetching all logs for a user,
-        // or just fetch experiments and then logs. 
-        // For now, I'll fetch experiments and then logs for each, or just try to get all if backend allows.
         const { data } = await api.get('/logs'); 
         setLogs(data);
       } catch (err) {
