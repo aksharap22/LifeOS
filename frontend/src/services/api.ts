@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// Ensure the URL is explicitly loaded from env
-const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api/v1';
+// Hardcoding the full URL to bypass Vercel proxying/routing conflicts
+const baseURL = 'https://lifeos-q9bi.onrender.com/api/v1';
 console.log('API URL:', baseURL);
 
 const api = axios.create({
