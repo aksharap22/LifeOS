@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import mongoose from 'mongoose';
+import { isDbConnected } from '../config/db.js';
 import DailyLog from '../models/DailyLog.js';
 import MetricEntry from '../models/MetricEntry.js';
 
@@ -7,7 +7,7 @@ export const createDailyLog = async (req: Request, res: Response) => {
   const { experimentId, date, notes, entries } = req.body;
 
   try {
-    if (mongoose.connection.readyState !== 1) {
+    if (!isDbConnected()) {
       return res.status(503).json({ message: 'Database not connected.' });
     }
 

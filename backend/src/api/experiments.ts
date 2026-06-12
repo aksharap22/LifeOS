@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import mongoose from 'mongoose';
+import { isDbConnected } from '../config/db.js';
 import Experiment from '../models/Experiment.js';
 import Metric from '../models/Metric.js';
 import { getExperimentAnalytics } from '../services/analytics.js';
@@ -7,7 +7,7 @@ import { getExperimentAnalytics } from '../services/analytics.js';
 export const getExperimentResults = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
-    if (mongoose.connection.readyState !== 1) {
+    if (!isDbConnected()) {
       return res.status(503).json({ message: 'Database not connected.' });
     }
     const analytics = await getExperimentAnalytics(id as string);
@@ -25,6 +25,9 @@ export const getExperimentById = async (req: Request, res: Response) => {
   }
 
   try {
+    if (!isDbConnected()) {
+      return res.status(503).json({ message: 'Database not connected.' });
+    }
     const experiment = await Experiment.findOne({
       _id: id,
       userId: (req as any).user._id,
@@ -45,6 +48,9 @@ export const createExperiment = async (req: Request, res: Response) => {
   const { title, description, hypothesis, category, duration, metrics } = req.body;
 
   try {
+    if (!isDbConnected()) {
+      return res.status(503).json({ message: 'Database not connected.' });
+    }
     const experiment = await Experiment.create({
       userId: (req as any).user._id,
       title,

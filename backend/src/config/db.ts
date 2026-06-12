@@ -3,6 +3,10 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+export const isDbConnected = () => {
+  return mongoose.connection.readyState === 1 || mongoose.connection.readyState === 2;
+};
+
 const connectDB = async () => {
   try {
     const uri = process.env['MONGODB_URI'] || 'mongodb://localhost:27017/lifeos';

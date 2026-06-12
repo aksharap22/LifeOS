@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import mongoose from 'mongoose';
+import { isDbConnected } from '../config/db.js';
 import User from '../models/User.js';
 import { generateToken, hashPassword, comparePassword } from '../utils/auth.js';
 
@@ -7,7 +7,7 @@ export const registerUser = async (req: Request, res: Response) => {
   const { name, email, password } = req.body;
 
   try {
-    if (mongoose.connection.readyState !== 1) {
+    if (!isDbConnected()) {
       return res.status(503).json({ message: 'Database not connected. Please check your MongoDB Atlas IP whitelist.' });
     }
     const userExists = await User.findOne({ email });
@@ -43,7 +43,7 @@ export const loginUser = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   try {
-    if (mongoose.connection.readyState !== 1) {
+    if (!isDbConnected()) {
       return res.status(503).json({ message: 'Database not connected. Please check your MongoDB Atlas IP whitelist.' });
     }
     const user = await User.findOne({ email });
