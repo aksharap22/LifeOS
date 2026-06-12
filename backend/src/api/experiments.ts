@@ -29,15 +29,15 @@ export const getExperimentById = async (req: Request, res: Response) => {
       return res.status(503).json({ message: 'Database not connected.' });
     }
     const experiment = await Experiment.findOne({
-      _id: id,
+      _id: id as string,
       userId: (req as any).user._id,
-    });
+    } as any);
 
     if (!experiment) {
       return res.status(404).json({ message: 'Experiment not found' });
     }
 
-    const metrics = await Metric.find({ experimentId: experiment._id });
+    const metrics = await Metric.find({ experimentId: experiment._id as any });
     res.json({ experiment, metrics });
   } catch (error) {
     res.status(500).json({ message: 'Error fetching experiment' });
@@ -85,14 +85,14 @@ export const deleteExperiment = async (req: Request, res: Response) => {
       return res.status(503).json({ message: 'Database not connected.' });
     }
     const experiment = await Experiment.findOneAndDelete({
-      _id: req.params.id,
+      _id: req.params.id as string,
       userId: (req as any).user._id,
-    });
+    } as any);
     if (!experiment) {
       console.log(`Experiment ${req.params.id} not found for user`);
       return res.status(404).json({ message: 'Experiment not found' });
     }
-    await Metric.deleteMany({ experimentId: req.params.id });
+    await Metric.deleteMany({ experimentId: req.params.id as string } as any);
     res.json({ message: 'Experiment deleted' });
   } catch (error) {
     console.error('Error deleting experiment:', error);
