@@ -12,8 +12,7 @@ const UserSchema: Schema = new Schema(
   {
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    passwordHash: { type: String }, // Made optional as Google users won't have it
-    googleId: { type: String }, // Added field
+    passwordHash: { type: String, required: true },
   },
   {
     timestamps: true,

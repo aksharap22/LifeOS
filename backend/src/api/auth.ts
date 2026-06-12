@@ -2,41 +2,6 @@ import type { Request, Response } from 'express';
 import { isDbConnected } from '../config/db.js';
 import User from '../models/User.js';
 import { generateToken, hashPassword, comparePassword } from '../utils/auth.js';
-import { OAuth2Client } from 'google-auth-library';
-
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-
-export const googleLogin = async (req: Request, res: Response) => {
-  const { token } = req.body;
-  try {
-    const ticket = await client.verifyIdToken({
-      idToken: token,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
-    const payload = ticket.getPayload();
-    if (!payload) return res.status(400).json({ message: 'Invalid token' });
-
-    const { email, name, sub: googleId } = payload;
-    
-    let user = await User.findOne({ email });
-    if (!user) {
-      user = await User.create({ name, email, googleId });
-    } else if (!user.googleId) {
-      user.googleId = googleId;
-      await user.save();
-    }
-
-    res.json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      token: generateToken((user._id as any).toString()),
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Google login failed' });
-  }
-};
-
 
 export const registerUser = async (req: Request, res: Response) => {
   const { name, email, password } = req.body;

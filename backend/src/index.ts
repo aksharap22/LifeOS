@@ -3,7 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import serverless from 'serverless-http';
 import connectDB from './config/db.js';
-import { registerUser, loginUser, googleLogin } from './api/auth.js';
+import { registerUser, loginUser } from './api/auth.js';
 import { createExperiment, getExperimentById, getExperiments, getExperimentResults } from './api/experiments.js';
 import { createDailyLog, getDailyLogs } from './api/metrics.js';
 import { triggerAIAnalysis } from './api/ai.js';
@@ -35,7 +35,6 @@ app.get('/', (req, res) => {
 // Auth
 app.post('/api/v1/auth/register', registerUser);
 app.post('/api/v1/auth/login', loginUser);
-app.post('/api/v1/auth/google', googleLogin);
 
 // Experiments
 app.post('/api/v1/experiments', protect, createExperiment);
