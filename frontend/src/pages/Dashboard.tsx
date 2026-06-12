@@ -9,6 +9,7 @@ import { challengeTemplates } from '../data/challengeTemplates';
 const Dashboard = () => {
   const [experiments, setExperiments] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'library' | 'experiments' | 'stats'>('library');
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
   const { user } = useAuth();
   const { t } = useLanguage();
 
@@ -44,13 +45,13 @@ const Dashboard = () => {
             LIFESTYLE LAB
           </div>
           <div className="space-y-4">
-            <h1 className="text-3xl md:text-5xl lg:text-6xl font-black leading-tight text-white tracking-tight uppercase">
+            <h1 className="text-3xl md:text-5xl font-black leading-tight text-white tracking-tight uppercase">
               {t('heroLine1')}
             </h1>
-            <h1 className="text-3xl md:text-5xl lg:text-6xl font-black leading-tight text-white/90 tracking-tight uppercase">
+            <h1 className="text-3xl md:text-5xl font-black leading-tight text-white/90 tracking-tight uppercase">
               {t('heroLine2')}
             </h1>
-            <h1 className="text-3xl md:text-5xl lg:text-6xl font-black leading-tight text-cyan-400 tracking-tight uppercase">
+            <h1 className="text-3xl md:text-5xl font-black leading-tight text-cyan-400 tracking-tight uppercase">
               {t('heroLine3')}
             </h1>
           </div>
@@ -96,7 +97,12 @@ const Dashboard = () => {
           {activeTab === 'library' && (
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
               {challengeTemplates.map((challenge) => (
-                <div key={challenge.id} className="group border border-white/10 bg-[#0a0a0a] p-6 transition-all hover:border-cyan-500/40 hover:translate-y-[-4px]">
+                <div 
+                  key={challenge.id} 
+                  onMouseEnter={() => setHoveredId(challenge.id)}
+                  onMouseLeave={() => setHoveredId(null)}
+                  className={`group border p-6 transition-all duration-300 ${hoveredId === challenge.id ? 'bg-white/5 border-cyan-500/40 shadow-[0_0_20px_rgba(34,211,238,0.05)] translate-y-[-4px]' : 'border-white/10 bg-[#0a0a0a]'}`}
+                >
                   <div className="mb-5 flex items-start justify-between gap-3">
                     <span className="border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-slate-400">
                       {challenge.badge}
