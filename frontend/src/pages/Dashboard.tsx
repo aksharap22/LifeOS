@@ -5,6 +5,7 @@ import { Activity, Plus, Flame, Timer, TrendingUp, Clipboard, Trash2 } from 'luc
 import { useAuth } from '../hooks/useAuth';
 import { useLanguage } from '../hooks/useLanguage';
 import { challengeTemplates } from '../data/challengeTemplates';
+import Testimonials from '../components/Testimonials';
 
 const Dashboard = () => {
   const [experiments, setExperiments] = useState<any[]>([]);
@@ -166,6 +167,7 @@ const Dashboard = () => {
           )}
         </div>
       </section>
+      <Testimonials />
     </div>
   );
 };
