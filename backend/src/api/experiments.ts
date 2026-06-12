@@ -73,7 +73,8 @@ export const createExperiment = async (req: Request, res: Response) => {
 
     res.status(201).json(experiment);
   } catch (error) {
-    res.status(500).json({ message: 'Error creating experiment' });
+    console.error('Error creating experiment:', error);
+    res.status(500).json({ message: 'Error creating experiment', error: error instanceof Error ? error.message : String(error) });
   }
 };
 

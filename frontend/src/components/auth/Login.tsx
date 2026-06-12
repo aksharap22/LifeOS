@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate, Link, Navigate } from 'react-router-dom';
 import { LockKeyhole, LogIn } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
+import { GoogleLogin } from '@react-oauth/google';
+import api from '../../services/api';
 
 export const Login = () => {
   const [email, setEmail] = useState('');
@@ -10,6 +12,16 @@ export const Login = () => {
   const [loading, setLoading] = useState(false);
   const { login, user } = useAuth();
   const navigate = useNavigate();
+
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    try {
+      const { data } = await api.post('/auth/google', { token: credentialResponse.credential });
+      localStorage.setItem('token', data.token);
+      window.location.href = '/'; 
+    } catch (err) {
+      setError('Google login failed');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,71 +46,54 @@ export const Login = () => {
       <section className="flex flex-col justify-center">
         <div className="mb-5 inline-flex w-fit items-center gap-2 border border-cyan-500/30 bg-cyan-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-cyan-200">
           <LockKeyhole size={14} />
-          Free JWT Auth
+          Auth System
         </div>
         <h1 className="max-w-3xl text-4xl font-black leading-tight text-white md:text-5xl">
           Sign in to track challenges, evidence, and behavior shifts.
         </h1>
         <p className="mt-5 max-w-2xl text-base leading-7 text-slate-300">
-          LifeOS uses your own Express API, MongoDB Atlas free tier, and JSON Web Tokens. No paid auth service is required.
+          LifeOS uses your own Express API, MongoDB Atlas free tier, and JSON Web Tokens.
         </p>
-        <div className="mt-8 grid gap-3 text-sm text-slate-300 sm:grid-cols-3">
-          <div className="border border-white/10 bg-white/[0.03] p-4">
-            <div className="font-bold text-white">1. Create</div>
-            <p className="mt-2">Register once with name, email, and password.</p>
-          </div>
-          <div className="border border-white/10 bg-white/[0.03] p-4">
-            <div className="font-bold text-white">2. Accept</div>
-            <p className="mt-2">Choose a challenge template or design your own.</p>
-          </div>
-          <div className="border border-white/10 bg-white/[0.03] p-4">
-            <div className="font-bold text-white">3. Log</div>
-            <p className="mt-2">Answer daily reflection prompts and metric scores.</p>
-          </div>
-        </div>
       </section>
 
-      <form onSubmit={handleSubmit} className="border border-white/10 bg-[#0a0a0a] p-6 shadow-2xl">
+      <div className="border border-white/10 bg-[#0a0a0a] p-6 shadow-2xl">
         <h2 className="text-2xl font-bold text-cyan-400">LOGIN</h2>
-        <p className="mt-2 text-sm text-slate-400">Use the account you created on this LifeOS API.</p>
-        {error && (
-          <div className="mt-5 border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200">
-            {error}
+        
+        <div className="mt-6 mb-6">
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => setError('Google login failed')}
+          />
+        </div>
+
+        <div className="relative my-4">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-white/10"></div>
           </div>
-        )}
-        <div>
-          <label className="mb-1 mt-6 block text-sm text-slate-300">EMAIL</label>
-          <input
-            type="email"
-            className="w-full border border-white/10 bg-black p-3 text-white focus:border-cyan-500 focus:outline-none"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            autoComplete="email"
-            required
-          />
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-[#0a0a0a] px-2 text-slate-400">Or continue with</span>
+          </div>
         </div>
-        <div>
-          <label className="mb-1 mt-4 block text-sm text-slate-300">PASSWORD</label>
-          <input
-            type="password"
-            className="w-full border border-white/10 bg-black p-3 text-white focus:border-cyan-500 focus:outline-none"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoComplete="current-password"
-            required
-          />
-        </div>
-        <button
-          disabled={loading}
-          className="mt-6 flex w-full items-center justify-center gap-2 bg-cyan-500 p-3 font-bold text-black transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          <LogIn size={18} />
-          {loading ? 'SIGNING IN...' : 'ACCESS SYSTEM'}
-        </button>
-        <p className="mt-4 text-center text-sm text-slate-400">
-          Need access? <Link to="/register" className="text-fuchsia-400 hover:underline">Register here</Link>
-        </p>
-      </form>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {error && <div className="border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200">{error}</div>}
+          <div>
+            <label className="mb-1 block text-sm text-slate-300">EMAIL</label>
+            <input type="email" className="w-full border border-white/10 bg-black p-3 text-white focus:border-cyan-500 focus:outline-none" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required />
+          </div>
+          <div>
+            <label className="mb-1 mt-4 block text-sm text-slate-300">PASSWORD</label>
+            <input type="password" className="w-full border border-white/10 bg-black p-3 text-white focus:border-cyan-500 focus:outline-none" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" required />
+          </div>
+          <button disabled={loading} className="mt-6 flex w-full items-center justify-center gap-2 bg-cyan-500 p-3 font-bold text-black transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-60">
+            <LogIn size={18} />
+            {loading ? 'SIGNING IN...' : 'ACCESS SYSTEM'}
+          </button>
+          <p className="mt-4 text-center text-sm text-slate-400">
+            Need access? <Link to="/register" className="text-fuchsia-400 hover:underline">Register here</Link>
+          </p>
+        </form>
+      </div>
     </div>
   );
 };
