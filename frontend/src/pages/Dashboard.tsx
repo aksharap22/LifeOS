@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import api from '../services/api';
 import { Link } from 'react-router-dom';
-import { Activity, Plus, Flame, Timer, TrendingUp, Clipboard, Trash2, Search } from 'lucide-react';
+import { Activity, Plus, Flame, Timer, TrendingUp, Clipboard, Trash2, Search, X } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useLanguage } from '../hooks/useLanguage';
-import { challengeTemplates } from '../data/challengeTemplates';
+import { challengeTemplates, type ChallengeTemplate } from '../data/challengeTemplates';
 import Testimonials from '../components/Testimonials';
 import AIScout from '../components/AIScout';
 
@@ -12,6 +12,7 @@ const Dashboard = () => {
   const [experiments, setExperiments] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'library' | 'experiments' | 'stats'>('library');
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [previewChallenge, setPreviewChallenge] = useState<ChallengeTemplate | null>(null);
   const [search, setSearch] = useState('');
   const { user } = useAuth();
   const { t } = useLanguage();
@@ -66,6 +67,22 @@ const Dashboard = () => {
   return (
     <div className="space-y-12 pb-20">
       <AIScout />
+      
+      {/* Challenge Preview Modal */}
+      {previewChallenge && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm" onClick={() => setPreviewChallenge(null)}>
+          <div className="bg-[#0a0a0a] border border-cyan-500/50 p-8 max-w-lg w-full relative" onClick={e => e.stopPropagation()}>
+            <button onClick={() => setPreviewChallenge(null)} className="absolute top-4 right-4 text-white hover:text-cyan-400"><X /></button>
+            <h2 className="text-2xl font-black uppercase tracking-tight text-white mb-4">{previewChallenge.title}</h2>
+            <p className="text-slate-300 leading-relaxed mb-6">{previewChallenge.description}</p>
+            <div className="text-sm text-cyan-400 font-bold mb-6">Hypothesis: {previewChallenge.hypothesis}</div>
+            <Link to={`/accept/${previewChallenge.id}`} className="block text-center bg-cyan-500 p-4 font-black text-black uppercase hover:bg-cyan-400 transition">
+              ACCEPT CHALLENGE
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* Hero Section */}
       <section className="py-16 border-b border-white/5 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-fuchsia-600/10 blur-[120px] rounded-full -mr-48 -mt-24"></div>
@@ -104,26 +121,27 @@ const Dashboard = () => {
 
         <div className="min-h-[400px]">
           {activeTab === 'library' && (
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              
-              {/* Search bar moved inside library */}
-              <div className="col-span-full mb-8 relative">
-                <Search className="absolute left-3 top-3.5 text-slate-500" size={18} />
-                <input 
-                  type="text" 
-                  placeholder="Search challenges..." 
-                  className="w-full bg-black border border-white/10 p-3 pl-10 text-white placeholder-slate-600 focus:border-cyan-500"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-              </div>
+            <>
+            {/* Search and Quick Filters */}
+            <div className="mb-8 relative">
+              <Search className="absolute left-3 top-3.5 text-slate-500" size={18} />
+              <input 
+                type="text" 
+                placeholder="Search challenges..." 
+                className="w-full bg-black border border-white/10 p-3 pl-10 text-white placeholder-slate-600 focus:border-cyan-500"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
 
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
               {filteredChallenges.map((challenge) => (
                 <div 
                   key={challenge.id} 
+                  onClick={() => setPreviewChallenge(challenge)}
                   onMouseEnter={() => setHoveredId(challenge.id)}
                   onMouseLeave={() => setHoveredId(null)}
-                  className={`card-glow group relative border p-6 transition-all duration-300 overflow-hidden ${hoveredId === challenge.id ? 'bg-white/5 border-cyan-500/40 shadow-[0_0_20px_rgba(34,211,238,0.05)] translate-y-[-4px]' : 'border-white/10 bg-[#0a0a0a]'}`}
+                  className={`card-glow group relative border p-6 transition-all duration-300 overflow-hidden cursor-pointer ${hoveredId === challenge.id ? 'bg-white/5 border-cyan-500/40 shadow-[0_0_20px_rgba(34,211,238,0.05)] translate-y-[-4px]' : 'border-white/10 bg-[#0a0a0a]'}`}
                 >
                   <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" style={{ background: 'radial-gradient(200px circle at var(--mouse-x) var(--mouse-y), rgba(34,211,238,0.1), transparent 80%)' }} />
                   <div className="relative z-10">
@@ -132,12 +150,13 @@ const Dashboard = () => {
                       <span className="text-[10px] font-black font-mono text-cyan-400 uppercase tracking-widest">{challenge.duration}D</span>
                     </div>
                     <h3 className="text-lg font-black text-white uppercase tracking-tight leading-tight mb-3 group-hover:text-cyan-400 transition-colors">{challenge.title}</h3>
-                    <p className="text-sm leading-relaxed text-slate-400 line-clamp-3 mb-6">{challenge.description}</p>
-                    <Link to={`/accept/${challenge.id}`} className="text-[10px] font-black uppercase tracking-widest text-cyan-400 group-hover:underline">START →</Link>
+                    <p className="text-sm leading-relaxed text-slate-400 line-clamp-2 mb-6">{challenge.description}</p>
+                    <div className="text-[10px] font-black uppercase tracking-widest text-cyan-400 group-hover:underline">PREVIEW →</div>
                   </div>
                 </div>
               ))}
             </div>
+            </>
           )}
           {activeTab === 'experiments' && (
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
