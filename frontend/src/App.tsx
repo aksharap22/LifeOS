@@ -86,7 +86,7 @@ function App() {
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
-                <Route path="/create-experiment" element={<ProtectedRoute><CreateExperiment /></ProtectedRoute>} />
+                <Route path="/accept/:templateId" element={<ProtectedRoute><CreateExperiment /></ProtectedRoute>} />
                 <Route path="/logs/:id" element={<ProtectedRoute><DailyLogForm /></ProtectedRoute>} />
                 <Route path="/results/:id" element={<ProtectedRoute><Results /></ProtectedRoute>} />
                 <Route path="/activity" element={<ProtectedRoute><ActivityLogs /></ProtectedRoute>} />

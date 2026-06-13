@@ -113,7 +113,7 @@ const Dashboard = () => {
                     </div>
                     <h3 className="text-lg font-black text-white uppercase tracking-tight leading-tight mb-3 group-hover:text-cyan-400 transition-colors">{challenge.title}</h3>
                     <p className="text-sm leading-relaxed text-slate-400 line-clamp-3 mb-6">{challenge.description}</p>
-                    <Link to="/create-experiment" className="text-[10px] font-black uppercase tracking-widest text-cyan-400 group-hover:underline">START →</Link>
+                    <Link to={`/accept/${challenge.id}`} className="text-[10px] font-black uppercase tracking-widest text-cyan-400 group-hover:underline">START →</Link>
                   </div>
                 </div>
               ))}
