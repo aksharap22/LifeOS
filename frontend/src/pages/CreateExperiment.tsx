@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Check, ClipboardList, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import api from '../services/api';
 import { challengeTemplates, customChallengeTemplate } from '../data/challengeTemplates';
 
