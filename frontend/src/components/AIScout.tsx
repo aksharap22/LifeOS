@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bot, Send, ArrowRight } from 'lucide-react';
+import { Bot, Send } from 'lucide-react';
 import { challengeTemplates } from '../data/challengeTemplates';
 
 const AIScout = () => {

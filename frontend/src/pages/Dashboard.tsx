@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import api from '../services/api';
 import { Link } from 'react-router-dom';
-import { Activity, Plus, Flame, Timer, TrendingUp, Clipboard, Trash2 } from 'lucide-react';
+import { Activity, Plus, Flame, Timer, TrendingUp, Clipboard, Trash2, Search } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useLanguage } from '../hooks/useLanguage';
 import { challengeTemplates } from '../data/challengeTemplates';
@@ -12,6 +12,7 @@ const Dashboard = () => {
   const [experiments, setExperiments] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'library' | 'experiments' | 'stats'>('library');
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [search, setSearch] = useState('');
   const { user } = useAuth();
   const { t } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -42,17 +43,11 @@ const Dashboard = () => {
     }
   };
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!containerRef.current) return;
-    const cards = containerRef.current.querySelectorAll('.card-glow');
-    cards.forEach((card: any) => {
-      const rect = card.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      card.style.setProperty('--mouse-x', `${x}px`);
-      card.style.setProperty('--mouse-y', `${y}px`);
-    });
-  };
+  const filteredChallenges = challengeTemplates.filter(c => 
+    c.title.toLowerCase().includes(search.toLowerCase()) ||
+    c.category.toLowerCase().includes(search.toLowerCase()) ||
+    c.tags.some(tag => tag.toLowerCase().includes(search.toLowerCase()))
+  );
 
   const activeCount = experiments.filter((exp) => exp.status === 'Active').length;
 
@@ -80,7 +75,7 @@ const Dashboard = () => {
         </div>
       </section>
 
-      <section onMouseMove={handleMouseMove} ref={containerRef}>
+      <section>
         <div className="flex border-b border-white/10 mb-10 overflow-x-auto no-scrollbar scroll-smooth">
           <button onClick={() => setActiveTab('library')} className={`px-8 py-5 font-black uppercase tracking-widest text-sm transition-all whitespace-nowrap relative ${activeTab === 'library' ? 'text-cyan-400' : 'text-slate-500 hover:text-white'}`}>
             {t('library')} {activeTab === 'library' && <div className="absolute bottom-0 left-0 w-full h-1 bg-cyan-400"></div>}
@@ -97,8 +92,28 @@ const Dashboard = () => {
           {activeTab === 'library' && (
             <>
             <AIScout />
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 animate-in fade-in slide-in-from-bottom-4 duration-500 mt-10">
-              {challengeTemplates.map((challenge) => (
+            
+            {/* Search and Quick Filters */}
+            <div className="mt-12 mb-8 flex flex-col md:flex-row gap-4 items-center">
+              <div className="relative flex-1 w-full">
+                <Search className="absolute left-3 top-3.5 text-slate-500" size={18} />
+                <input 
+                  type="text" 
+                  placeholder="Search challenges (e.g., 'sleep', 'focus')..." 
+                  className="w-full bg-black border border-white/10 p-3 pl-10 text-white placeholder-slate-600 focus:border-cyan-500"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
+              <div className="flex gap-2 overflow-x-auto w-full md:w-auto no-scrollbar">
+                {challengeTemplates.slice(0, 5).map(c => (
+                  <button key={c.id} onClick={() => setSearch(c.title)} className="text-[10px] whitespace-nowrap font-bold uppercase tracking-widest border border-white/10 px-3 py-2 hover:bg-white/5">{c.title}</button>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              {filteredChallenges.map((challenge) => (
                 <div 
                   key={challenge.id} 
                   onMouseEnter={() => setHoveredId(challenge.id)}
