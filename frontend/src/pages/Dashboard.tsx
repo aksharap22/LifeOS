@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import api from '../services/api';
 import { Link } from 'react-router-dom';
 import { Activity, Plus, Flame, Timer, TrendingUp, Clipboard, Trash2, Search } from 'lucide-react';
@@ -15,7 +15,6 @@ const Dashboard = () => {
   const [search, setSearch] = useState('');
   const { user } = useAuth();
   const { t } = useLanguage();
-  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchExperiments = async () => {
@@ -118,9 +117,8 @@ const Dashboard = () => {
                   key={challenge.id} 
                   onMouseEnter={() => setHoveredId(challenge.id)}
                   onMouseLeave={() => setHoveredId(null)}
-                  className={`card-glow group relative border p-6 transition-all duration-300 overflow-hidden ${hoveredId === challenge.id ? 'bg-white/5 border-cyan-500/40 shadow-[0_0_20px_rgba(34,211,238,0.05)] translate-y-[-4px]' : 'border-white/10 bg-[#0a0a0a]'}`}
+                  className={`group relative border p-6 transition-all duration-300 overflow-hidden ${hoveredId === challenge.id ? 'bg-white/5 border-cyan-500/40 shadow-[0_0_20px_rgba(34,211,238,0.05)] translate-y-[-4px]' : 'border-white/10 bg-[#0a0a0a]'}`}
                 >
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" style={{ background: 'radial-gradient(200px circle at var(--mouse-x) var(--mouse-y), rgba(34,211,238,0.1), transparent 80%)' }} />
                   <div className="relative z-10">
                     <div className="mb-5 flex items-start justify-between gap-3">
                       <span className="border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-slate-400">{challenge.badge}</span>
