@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import api from '../services/api';
@@ -11,14 +11,25 @@ const CreateExperiment = () => {
     [templateId]
   );
 
-  const [title, setTitle] = useState(template.title);
-  const [description, setDescription] = useState(template.description);
-  const [hypothesis, setHypothesis] = useState(template.hypothesis);
-  const [category, setCategory] = useState(template.category);
-  const [duration, setDuration] = useState(template.duration);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [hypothesis, setHypothesis] = useState('');
+  const [category, setCategory] = useState('');
+  const [duration, setDuration] = useState(7);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  // Initialize state only after template is resolved
+  useEffect(() => {
+    if (template) {
+      setTitle(template.title);
+      setDescription(template.description);
+      setHypothesis(template.hypothesis);
+      setCategory(template.category);
+      setDuration(template.duration);
+    }
+  }, [template]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,6 +52,8 @@ const CreateExperiment = () => {
       setSubmitting(false);
     }
   };
+
+  if (!template) return <div className="p-10 text-center text-white">Loading...</div>;
 
   return (
     <div className="mx-auto max-w-2xl py-6">
