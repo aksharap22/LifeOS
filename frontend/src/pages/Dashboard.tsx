@@ -56,6 +56,11 @@ const Dashboard = () => {
     });
   };
 
+  const scrollToLibrary = () => {
+    setActiveTab('library');
+    document.getElementById('library-section')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   const filteredChallenges = challengeTemplates.filter(c => 
     c.title.toLowerCase().includes(search.toLowerCase()) ||
     c.category.toLowerCase().includes(search.toLowerCase()) ||
@@ -99,14 +104,17 @@ const Dashboard = () => {
             <h1 className="text-3xl md:text-5xl font-black leading-tight text-cyan-400 tracking-tight uppercase">{t('heroLine3')}</h1>
           </div>
           <div className="mt-12">
-            <Link to={user ? '/create-experiment' : '/register'} className="inline-flex items-center gap-3 bg-white px-10 py-4 font-black text-black transition-all hover:bg-cyan-400 uppercase text-lg">
-              <Plus size={22} /> {user ? t('acceptChallenge') : t('startNow')}
-            </Link>
+            <button 
+              onClick={scrollToLibrary} 
+              className="inline-flex items-center gap-3 bg-white px-10 py-4 font-black text-black transition-all hover:bg-cyan-400 uppercase text-lg"
+            >
+              <Plus size={22} /> {t('acceptChallenge')}
+            </button>
           </div>
         </div>
       </section>
 
-      <section onMouseMove={handleMouseMove} ref={containerRef}>
+      <section id="library-section" onMouseMove={handleMouseMove} ref={containerRef}>
         <div className="flex border-b border-white/10 mb-10 overflow-x-auto no-scrollbar scroll-smooth">
           <button onClick={() => setActiveTab('library')} className={`px-8 py-5 font-black uppercase tracking-widest text-sm transition-all whitespace-nowrap relative ${activeTab === 'library' ? 'text-cyan-400' : 'text-slate-500 hover:text-white'}`}>
             {t('library')} {activeTab === 'library' && <div className="absolute bottom-0 left-0 w-full h-1 bg-cyan-400"></div>}
