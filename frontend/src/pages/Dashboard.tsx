@@ -6,6 +6,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useLanguage } from '../hooks/useLanguage';
 import { challengeTemplates } from '../data/challengeTemplates';
 import Testimonials from '../components/Testimonials';
+import AIScout from '../components/AIScout';
 
 const Dashboard = () => {
   const [experiments, setExperiments] = useState<any[]>([]);
@@ -34,13 +35,10 @@ const Dashboard = () => {
   const deleteExperiment = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this challenge?')) return;
     try {
-      const url = `/experiments/${id}`;
-      console.log(`Attempting to delete at URL: ${api.defaults.baseURL}${url}`);
-      await api.delete(url);
+      await api.delete(`/experiments/${id}`);
       setExperiments(experiments.filter((exp) => exp._id !== id));
     } catch (err) {
-      console.error('Failed to delete experiment:', err);
-      alert('Failed to delete. Check console for details.');
+      console.error('Failed to delete experiment');
     }
   };
 
@@ -97,7 +95,9 @@ const Dashboard = () => {
 
         <div className="min-h-[400px]">
           {activeTab === 'library' && (
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <>
+            <AIScout />
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 animate-in fade-in slide-in-from-bottom-4 duration-500 mt-10">
               {challengeTemplates.map((challenge) => (
                 <div 
                   key={challenge.id} 
@@ -118,6 +118,7 @@ const Dashboard = () => {
                 </div>
               ))}
             </div>
+            </>
           )}
           {activeTab === 'experiments' && (
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
