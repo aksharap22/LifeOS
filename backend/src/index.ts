@@ -25,34 +25,42 @@ app.use(cors({
 
 app.use(express.json());
 
-// Initialize DB
-connectDB().catch(console.error);
+const startServer = async () => {
+  try {
+    await connectDB();
 
-app.get('/', (req, res) => {
-  res.send('LifeOS API is running...');
-});
+    app.get('/', (req, res) => {
+      res.send('LifeOS API is running...');
+    });
 
-// Auth
-app.post('/api/v1/auth/register', registerUser);
-app.post('/api/v1/auth/login', loginUser);
+    // Auth
+    app.post('/api/v1/auth/register', registerUser);
+    app.post('/api/v1/auth/login', loginUser);
 
-// Experiments
-app.post('/api/v1/experiments', protect, createExperiment);
-app.get('/api/v1/experiments', protect, getExperiments);
-app.get('/api/v1/experiments/:id', protect, getExperimentById);
-app.get('/api/v1/experiments/:id/results', protect, getExperimentResults);
-app.delete('/api/v1/experiments/:id', protect, deleteExperiment);
+    // Experiments
+    app.post('/api/v1/experiments', protect, createExperiment);
+    app.get('/api/v1/experiments', protect, getExperiments);
+    app.get('/api/v1/experiments/:id', protect, getExperimentById);
+    app.get('/api/v1/experiments/:id/results', protect, getExperimentResults);
+    app.delete('/api/v1/experiments/:id', protect, deleteExperiment);
 
-// Metrics/Logs
-app.post('/api/v1/logs', protect, createDailyLog);
-app.get('/api/v1/logs', protect, getDailyLogs);
+    // Metrics/Logs
+    app.post('/api/v1/logs', protect, createDailyLog);
+    app.get('/api/v1/logs', protect, getDailyLogs);
 
-// AI & Manual
-app.post('/api/v1/ai/generate/:experimentId', protect, triggerAIAnalysis);
-app.get('/api/v1/manual', protect, getOperatingManual);
+    // AI & Manual
+    app.post('/api/v1/ai/generate/:experimentId', protect, triggerAIAnalysis);
+    app.get('/api/v1/manual', protect, getOperatingManual);
 
-const PORT = Number(process.env.PORT) || 10000;
+    const PORT = Number(process.env.PORT) || 10000;
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
-});
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
+};
+
+startServer();
