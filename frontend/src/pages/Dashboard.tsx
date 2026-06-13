@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import api from '../services/api';
 import { Link } from 'react-router-dom';
 import { Activity, Plus, Flame, Timer, TrendingUp, Clipboard, Trash2, Search } from 'lucide-react';
@@ -15,6 +15,7 @@ const Dashboard = () => {
   const [search, setSearch] = useState('');
   const { user } = useAuth();
   const { t } = useLanguage();
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchExperiments = async () => {
@@ -42,6 +43,18 @@ const Dashboard = () => {
     }
   };
 
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!containerRef.current) return;
+    const cards = containerRef.current.querySelectorAll('.card-glow');
+    cards.forEach((card: any) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      card.style.setProperty('--mouse-x', `${x}px`);
+      card.style.setProperty('--mouse-y', `${y}px`);
+    });
+  };
+
   const filteredChallenges = challengeTemplates.filter(c => 
     c.title.toLowerCase().includes(search.toLowerCase()) ||
     c.category.toLowerCase().includes(search.toLowerCase()) ||
@@ -52,6 +65,8 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-12 pb-20">
+      <AIScout />
+      {/* Hero Section */}
       <section className="py-16 border-b border-white/5 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-fuchsia-600/10 blur-[120px] rounded-full -mr-48 -mt-24"></div>
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-cyan-600/10 blur-[100px] rounded-full -ml-32 -mb-16"></div>
@@ -74,7 +89,7 @@ const Dashboard = () => {
         </div>
       </section>
 
-      <section>
+      <section onMouseMove={handleMouseMove} ref={containerRef}>
         <div className="flex border-b border-white/10 mb-10 overflow-x-auto no-scrollbar scroll-smooth">
           <button onClick={() => setActiveTab('library')} className={`px-8 py-5 font-black uppercase tracking-widest text-sm transition-all whitespace-nowrap relative ${activeTab === 'library' ? 'text-cyan-400' : 'text-slate-500 hover:text-white'}`}>
             {t('library')} {activeTab === 'library' && <div className="absolute bottom-0 left-0 w-full h-1 bg-cyan-400"></div>}
@@ -89,36 +104,28 @@ const Dashboard = () => {
 
         <div className="min-h-[400px]">
           {activeTab === 'library' && (
-            <>
-            <AIScout />
-            
-            {/* Search and Quick Filters */}
-            <div className="mt-12 mb-8 flex flex-col md:flex-row gap-4 items-center">
-              <div className="relative flex-1 w-full">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              
+              {/* Search bar moved inside library */}
+              <div className="col-span-full mb-8 relative">
                 <Search className="absolute left-3 top-3.5 text-slate-500" size={18} />
                 <input 
                   type="text" 
-                  placeholder="Search challenges (e.g., 'sleep', 'focus')..." 
+                  placeholder="Search challenges..." 
                   className="w-full bg-black border border-white/10 p-3 pl-10 text-white placeholder-slate-600 focus:border-cyan-500"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
               </div>
-              <div className="flex gap-2 overflow-x-auto w-full md:w-auto no-scrollbar">
-                {challengeTemplates.slice(0, 5).map(c => (
-                  <button key={c.id} onClick={() => setSearch(c.title)} className="text-[10px] whitespace-nowrap font-bold uppercase tracking-widest border border-white/10 px-3 py-2 hover:bg-white/5">{c.title}</button>
-                ))}
-              </div>
-            </div>
 
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
               {filteredChallenges.map((challenge) => (
                 <div 
                   key={challenge.id} 
                   onMouseEnter={() => setHoveredId(challenge.id)}
                   onMouseLeave={() => setHoveredId(null)}
-                  className={`group relative border p-6 transition-all duration-300 overflow-hidden ${hoveredId === challenge.id ? 'bg-white/5 border-cyan-500/40 shadow-[0_0_20px_rgba(34,211,238,0.05)] translate-y-[-4px]' : 'border-white/10 bg-[#0a0a0a]'}`}
+                  className={`card-glow group relative border p-6 transition-all duration-300 overflow-hidden ${hoveredId === challenge.id ? 'bg-white/5 border-cyan-500/40 shadow-[0_0_20px_rgba(34,211,238,0.05)] translate-y-[-4px]' : 'border-white/10 bg-[#0a0a0a]'}`}
                 >
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" style={{ background: 'radial-gradient(200px circle at var(--mouse-x) var(--mouse-y), rgba(34,211,238,0.1), transparent 80%)' }} />
                   <div className="relative z-10">
                     <div className="mb-5 flex items-start justify-between gap-3">
                       <span className="border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-slate-400">{challenge.badge}</span>
@@ -131,7 +138,6 @@ const Dashboard = () => {
                 </div>
               ))}
             </div>
-            </>
           )}
           {activeTab === 'experiments' && (
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -139,7 +145,6 @@ const Dashboard = () => {
                 <div className="col-span-full border border-dashed border-white/10 py-24 flex flex-col items-center justify-center text-slate-500">
                   <Clipboard className="mb-4 opacity-20" size={48} />
                   <p className="font-black uppercase tracking-widest">No active experiments</p>
-                  <button onClick={() => setActiveTab('library')} className="mt-4 text-xs font-black text-cyan-400 hover:underline uppercase">Browse Library</button>
                 </div>
               ) : (
                 experiments.map((exp) => (
