@@ -1,10 +1,16 @@
+# Dependencies
 node_modules/
 frontend/node_modules/
 backend/node_modules/
-.npm-cache/
+
+# Local Environment & Cache files
 .env
+.npm-cache/
+*.log
+
+# Production Builds
 dist/
 build/
-node_modules/
-.npm-cache/
-.env
+
+# System Files
+.DS_Store

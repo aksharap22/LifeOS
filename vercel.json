@@ -1,4 +1,7 @@
 {
+  "installCommand": "cd lifeos/frontend && npm ci",
+  "buildCommand": "cd lifeos/frontend && npm run build",
+  "outputDirectory": "lifeos/frontend/dist",
   "rewrites": [
     {
       "source": "/(.*)",
