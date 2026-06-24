@@ -1,0 +1,6 @@
+
+> backend@1.0.0 dev
+> tsx src/index.ts
+
+◇ injected env (4) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]

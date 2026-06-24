@@ -1,0 +1,80 @@
+image: node:20
+
+stages:
+  - install
+  - lint
+  - build
+  - test
+
+variables:
+  # Use cached node_modules to speed up builds
+  BACKEND_DIR: "backend"
+  FRONTEND_DIR: "frontend"
+
+cache:
+  key:
+    files:
+      - backend/package-lock.json
+      - frontend/package-lock.json
+  paths:
+    - backend/node_modules/
+    - frontend/node_modules/
+
+# --- Install Stage ---
+
+backend-install:
+  stage: install
+  script:
+    - cd $BACKEND_DIR
+    - npm ci
+  artifacts:
+    paths:
+      - backend/node_modules/
+
+frontend-install:
+  stage: install
+  script:
+    - cd $FRONTEND_DIR
+    - npm ci
+  artifacts:
+    paths:
+      - frontend/node_modules/
+
+# --- Lint Stage ---
+
+frontend-lint:
+  stage: lint
+  allow_failure: true
+  script:
+    - cd $FRONTEND_DIR
+    - npm run lint
+  dependencies:
+    - frontend-install
+
+# --- Build Stage ---
+
+backend-build:
+  stage: build
+  script:
+    - cd $BACKEND_DIR
+    - npm run build
+  dependencies:
+    - backend-install
+
+frontend-build:
+  stage: build
+  script:
+    - cd $FRONTEND_DIR
+    - npm run build
+  dependencies:
+    - frontend-install
+
+# --- Test Stage ---
+
+backend-test:
+  stage: test
+  script:
+    - cd $BACKEND_DIR
+    - npm test
+  dependencies:
+    - backend-install
