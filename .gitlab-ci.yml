@@ -74,9 +74,9 @@ frontend-build:
 
 backend-test:
   stage: test
+  allow_failure: true  # Tells GitLab to mark this block with a warning instead of a hard crash
   script:
     - cd $BACKEND_DIR
-    # Appending '|| true' guarantees a clean 0 exit code so GitLab turns completely green
-    - npm test || (echo "No tests configured yet, skipping step cleanly" && true)
+    - npm test
   dependencies:
     - backend-install
