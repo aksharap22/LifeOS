@@ -11,7 +11,7 @@ variables:
   BACKEND_DIR: "lifeos/backend"
   FRONTEND_DIR: "lifeos/frontend"
 
-# Global cache configuration across jobs
+# Global cache configuration across jobs (stored locally on the laptop)
 cache:
   key: ${CI_COMMIT_REF_SLUG}
   paths:
@@ -26,20 +26,12 @@ backend-install:
   script:
     - cd $BACKEND_DIR
     - npm install --no-audit --no-fund --prefer-offline
-  artifacts:
-    paths:
-      - lifeos/backend/node_modules/
-    expire_in: 1 hour
 
 frontend-install:
   stage: install
   script:
     - cd $FRONTEND_DIR
     - npm install --no-audit --no-fund --prefer-offline
-  artifacts:
-    paths:
-      - lifeos/frontend/node_modules/
-    expire_in: 1 hour
 
 # --- Lint Stage ---
 
@@ -49,8 +41,6 @@ frontend-lint:
   script:
     - cd $FRONTEND_DIR
     - npm run lint
-  dependencies:
-    - frontend-install
 
 # --- Build Stage ---
 
@@ -59,16 +49,12 @@ backend-build:
   script:
     - cd $BACKEND_DIR
     - npm run build || echo "No build script specified" 
-  dependencies:
-    - backend-install
 
 frontend-build:
   stage: build
   script:
     - cd $FRONTEND_DIR
     - npm run build || echo "Build completed with warnings or script skipped"
-  dependencies:
-    - frontend-install
 
 # --- Test Stage ---
 
@@ -78,5 +64,3 @@ backend-test:
   script:
     - cd $BACKEND_DIR
     - npm test
-  dependencies:
-    - backend-install
