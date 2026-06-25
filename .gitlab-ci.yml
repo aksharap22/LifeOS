@@ -25,7 +25,8 @@ backend-install:
   stage: install
   script:
     - cd $BACKEND_DIR
-    - npm ci --cache ../../.npm --prefer-offline
+    # Clean install with network performance flags
+    - npm install --no-audit --no-fund --prefer-offline
   artifacts:
     paths:
       - lifeos/backend/node_modules/
@@ -35,7 +36,8 @@ frontend-install:
   stage: install
   script:
     - cd $FRONTEND_DIR
-    - npm ci --cache ../../.npm --prefer-offline
+    # Clean install with network performance flags
+    - npm install --no-audit --no-fund --prefer-offline
   artifacts:
     paths:
       - lifeos/frontend/node_modules/
