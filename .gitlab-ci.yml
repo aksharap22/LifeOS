@@ -7,15 +7,9 @@ stages:
   - test
 
 variables:
-  # Updated paths to point inside your active subfolder
+  # Paths pointing inside your active subfolder
   BACKEND_DIR: "lifeos/backend"
   FRONTEND_DIR: "lifeos/frontend"
-  
-  # --- Performance Overrides for Local Laptop Runners ---
-  # Prevents git from nuking and rebuilding node_modules on every single stage transition
-  GIT_CLEAN_FLAGS: "-ffdx -e lifeos/backend/node_modules/ -e lifeos/frontend/node_modules/"
-  # Shallow clone to speed up project fetching down to seconds
-  GIT_DEPTH: "1"
 
 # Global cache configuration across jobs
 cache:
@@ -31,7 +25,6 @@ backend-install:
   stage: install
   script:
     - cd $BACKEND_DIR
-    # Clean install with network performance flags
     - npm install --no-audit --no-fund --prefer-offline
   artifacts:
     paths:
@@ -42,7 +35,6 @@ frontend-install:
   stage: install
   script:
     - cd $FRONTEND_DIR
-    # Clean install with network performance flags
     - npm install --no-audit --no-fund --prefer-offline
   artifacts:
     paths:
@@ -82,7 +74,7 @@ frontend-build:
 
 backend-test:
   stage: test
-  allow_failure: true  # Tells GitLab to mark this block with a warning instead of a hard crash
+  allow_failure: true  
   script:
     - cd $BACKEND_DIR
     - npm test
