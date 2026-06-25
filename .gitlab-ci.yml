@@ -7,7 +7,7 @@ stages:
   - test
 
 variables:
-  # Paths pointing inside your active subfolder
+  # Project subdirectory paths
   BACKEND_DIR: "lifeos/backend"
   FRONTEND_DIR: "lifeos/frontend"
 
@@ -17,21 +17,13 @@ backend-install:
   stage: install
   script:
     - cd $BACKEND_DIR
-    - npm install
-  artifacts:
-    paths:
-      - lifeos/backend/node_modules/
-    expire_in: 1 hour
+    - npm install --no-audit --no-fund --prefer-offline
 
 frontend-install:
   stage: install
   script:
     - cd $FRONTEND_DIR
-    - npm install
-  artifacts:
-    paths:
-      - lifeos/frontend/node_modules/
-    expire_in: 1 hour
+    - npm install --no-audit --no-fund --prefer-offline
 
 # --- Lint Stage ---
 
@@ -41,8 +33,6 @@ frontend-lint:
   script:
     - cd $FRONTEND_DIR
     - npm run lint
-  dependencies:
-    - frontend-install
 
 # --- Build Stage ---
 
@@ -51,24 +41,18 @@ backend-build:
   script:
     - cd $BACKEND_DIR
     - npm run build || echo "No build script specified" 
-  dependencies:
-    - backend-install
 
 frontend-build:
   stage: build
   script:
     - cd $FRONTEND_DIR
     - npm run build || echo "Build completed with warnings or script skipped"
-  dependencies:
-    - frontend-install
 
 # --- Test Stage ---
 
 backend-test:
   stage: test
-  allow_failure: true  # Tells GitLab to mark this block with a warning instead of a hard crash
+  allow_failure: true  # Prevents unwritten tests from crashing the pipeline
   script:
     - cd $BACKEND_DIR
     - npm test
-  dependencies:
-    - backend-install
