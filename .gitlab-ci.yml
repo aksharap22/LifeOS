@@ -10,12 +10,20 @@ variables:
   # Project subdirectory paths
   BACKEND_DIR: "lifeos/backend"
   FRONTEND_DIR: "lifeos/frontend"
-  
+
   # --- THE ABSOLUTE RESET FLAGS ---
-  # Forces the runner to delete the local folder and do a 100% clean clone every time.
-  # This physically prevents the "shallow file has changed" error from ever happening.
   GIT_STRATEGY: clone
   GIT_DEPTH: "0"
+
+# --- Global Workflow Rules ---
+# This prevents the pipeline from running if ONLY markdown or templates are changed
+workflow:
+  rules:
+    - changes:
+        - "**/*.md"
+        - ".github/**/*"
+      when: never
+    -搜尋: always
 
 # --- Install Stage ---
 
@@ -46,7 +54,7 @@ backend-build:
   stage: build
   script:
     - cd $BACKEND_DIR
-    - npm run build || echo "No build script specified" 
+    - npm run build || echo "No build script specified"
 
 frontend-build:
   stage: build
@@ -58,7 +66,7 @@ frontend-build:
 
 backend-test:
   stage: test
-  allow_failure: true  
+  allow_failure: true
   script:
     - cd $BACKEND_DIR
     - npm test
