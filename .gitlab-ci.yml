@@ -16,14 +16,13 @@ variables:
   GIT_DEPTH: "0"
 
 # --- Global Workflow Rules ---
-# This prevents the pipeline from running if ONLY markdown or templates are changed
 workflow:
   rules:
     - changes:
         - "**/*.md"
         - ".github/**/*"
       when: never
-    -搜尋: always
+    - when: always
 
 # --- Install Stage ---
 
